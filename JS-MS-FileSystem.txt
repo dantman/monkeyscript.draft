@@ -1,0 +1,127 @@
+For filesystem:
+/home/daniel/Documents/example.txt
+asdf
+qwerty
+/home/daniel/Documents/mr.spam
+I Am Spam!
+/home/daniel/Documents/badname.txt
+I should be goodname
+=====
+
+
+(new Path('/some/imaginary/path'))
+Path('/some/imaginary/path')
+
+(new FilePath('/home/daniel/Documents/'))
+FilePath('/home/daniel/Documents/')
+
+(new URL('http://example.com'))
+URL('http://example.com')
+
+(new File('/home/daniel/Documents/'))
+File('/home/daniel/Documents/')
+
+
+{
+	/** File API **/
+	let f = new File('/home/daniel/Documents/example.txt');
+	f.exists; // true
+	f.isFile; // true
+	f.isDirectory; // false
+	f.isReadable; // true
+	f.isWritable; // true
+	f.isExecutable; // true
+	f.isHidden; // false
+	f.name; // "example.txt"
+	
+	f.open('r'); // returns self;
+	f.read(); // "asdf\nqwerty"
+	f.rewind();
+	f.readLine(); // "asdf"
+	f.close(); // returns self;
+	
+	f.open('rb');
+	f.read(); // [Blob bytes=4]
+	f.touch(); // touch the file to update timestamp
+	f.lastModified = new Date; // same as above, but not recomended
+	f.lastModified = new Date('Some date');
+	// File closure is implied when f is garbage collected
+	
+	File('/home/daniel/Documents/mr.spam').exists = false; // deleted
+	File('/home/daniel/Documents/badname.txt').move('/home/daniel/Documents/goodname.txt');
+	File('/home/daniel/Documents/goodname.txt').rename('goodboy.txt');
+	
+	// To keep the low level people happy:
+	File.open = function(path, mode) (new File(path)).open(mode);
+
+	// To keep the people who just want something quick to use happy
+	File.prototype.__defineGetter__('contents', function() {
+		this.open('rt');
+		var text = this.read();
+		this.close();
+		return text;
+	});
+	File.prototype.__defineSetter__('contents', function(content) {
+		if(content === false) return this.exists = false;
+		this.open(content instanceof Blob ? 'wb' : 'wt');
+		this.write(content);
+		this.close();
+	});
+
+
+	File.prototype.remove = File.prototype['delete'] = File.prototype.unlink = File.prototype.rm = function Delete() {
+		try {
+			this.exists = false;
+			return true;
+		} catch( e if e instanceof IOError ) {
+			return false;
+		}
+	};
+
+}
+
+
+{
+	/** Path API **/
+	Path.pathSeparator; // const '/'
+	Path.listSeparator; // const ':'
+	Path.pathSplitter; // const '/'
+	
+	var p = new Path('foo/bar/../baz');
+	p.normalize; // Path foo/baz
+	p.absolute; // throw PathNoBaseError
+	
+}
+
+FilePath = Path.newSubsystem({
+	pathSeparator: ...
+	listSeparator: ...
+	pathSplitter: ...
+});
+FilePath.base = FilePath.cwd = function() ...;
+
+{
+	/** FilePath API **/
+	FilePath.pathSeparator; // OS Dependant
+	FilePath.listSeparator; // OS Dependant
+	FilePath.pathSplitter; // const /[\/\\]/
+	
+	FilePath.base = FilePath.cwd; // FilePath /home/daniel/Documents/Work
+	
+	var p = new FilePath('../example.txt');
+	p.absolute; // FilePath /home/daniel/Documents/example.txt
+	p.absolute.parent; // FilePath /home/daniel/Documents/
+	p.absolute.parent.parent; // FilePath /home/daniel/
+	p.absolute.parent.parent.resolve('Workspace/'); // FilePath /home/daniel/Workspace
+	
+	FilePath('~/Documents').list(); // FileArray[/home/daniel/Documents/example.txt, /home/daniel/Documents/goodboy.txt]
+	FilePath('~/Documents').glob('*.txt'); // FileArray[/home/daniel/Documents/example.txt, /home/daniel/Documents/goodboy.txt]
+	
+	FilePath.home.resolve('.monkeyscriptrc');
+	new FilePath('~/.monkeyscriptrc');
+	
+}
+
+{
+	/** URL API **/
+	

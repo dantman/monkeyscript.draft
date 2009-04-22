@@ -1,8 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<?xml-stylesheet type="text/xsl" href="../api.xsl"?>
+<?xml-stylesheet type="text/xsl" href="api.xsl"?>
 <api path=".">
-	<class instance="file">File</class>
-	<namespace>io</namespace>
+	<class instance="path">Path</class>
 	<construct>
 		<form>var p= new Path(pathString);</form>
 		<form>Path(pathString).doSomething();</form>
@@ -28,7 +27,8 @@
 		</call>
 	</static>
 	<properties>
-		<call level="internal">
+		<call>
+			<internal/>
 			<name>_path</name>
 			<form mode="get"/>
 			<explain>
@@ -65,6 +65,14 @@ Path.prototype.__defineGetter__('parent', function() {
 			<form mode="get"/>
 			<explain>
 				<p>Note: The name used to be normalize but was changed to normal since normalize is a verb and thus would normally be expected to be normalize() and perhaps apply to the current object instead of creating a new one. Note that the name may actually be changed to normalized instead.</p>
+				<p>Returns a new path object with the .'s and ..'s normalized. So paths like 'foo/bar/../baz/./' becomes 'foo/baz/'</p>
+			</explain>
+		</call>
+		<call>
+			<name status="pending">absolute</name>
+			<form mode="get"/>
+			<explain>
+				<p>Returns a new path object which is normalized and resoloved relative to the base. So 'foo/' becomes Path.base.resolve('foo/'); and if Path.home is set '~/foo' becomes Path.home.resolve('~/foo');</p>
 			</explain>
 		</call>
 	</properties>

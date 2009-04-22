@@ -99,7 +99,7 @@
 				<xsl:when test="@implementation = 'native'"><span class="impl-native">(implemented natively)</span></xsl:when>
 				<xsl:when test="@implementation = 'js'"><span class="impl-js">(implemented in JavaScript)</span></xsl:when>
 			</xsl:choose>
-			<xsl:if test="@level = 'internal'"><span class="internal">(internal)</span></xsl:if>
+			<xsl:if test="internal"><span class="internal">(internal)</span></xsl:if>
 		</h4>
 		<div>
 			<xsl:if test="alias">

@@ -61,9 +61,12 @@ blockquote, q {
 section {
 	/*margin-top: 5px;*/
 	padding: 0 2px 15px;
+	margin: 0;
 }
+section.call { padding-bottom: 0; }
+section.call > div { padding-bottom: 15px; }
 
-h3, h4, h5 { margin: 0px; }
+h3, h4, h5 { margin: 0px; padding: 0; }
 h3 {
 	font-size: 1.2em;
 	font-weight: bold;

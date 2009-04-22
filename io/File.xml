@@ -24,13 +24,68 @@ File.open = function(fileName, mode, flags) (new File(fileName)).open(mode, flag
 	</static>
 	<properties>
 		<call implementation="native">
-			<name>exist</name>
+			<name>name</name>
+			<form mode="get"/>
+			<form mode="set">string</form>
+			<explain>
+				<p>When checked returns a string containing the stated filename of the file.</p>
+				<p>If <code>file.name = string;</code> is used then the file is moved to have a different name within the same directory. An IOError is thrown if moving fails.</p>
+			</explain>
+		</call>
+		<call implementation="native">
+			<name>name</name>
+			<form mode="get"/>
+			<form mode="set">path</form>
+			<explain>
+				<p>When checked returns a FilePath object containing the path to the file.</p>
+				<p>If <code>file.name = path;</code> is used then the file is moved. An IOError is thrown if moving fails.</p>
+			</explain>
+		</call>
+		<call implementation="native">
+			<name>exists</name>
 			<form mode="get"/>
 			<form mode="set">false</form>
 			<explain>
 				<p>When checked returns a boolean indicating whether or not the file exists.</p>
 				<p>If <code>file.exists = false;</code> is used then the file is deleted. An IOError is thrown if deletion fails.</p>
 				<p>There is no current definition of the <code>file.exists = true;</code> use and will likely throw an error for now.</p>
+			</explain>
+		</call>
+		<call implementation="native">
+			<name>isFile</name>
+			<form mode="get"/>
+			<explain>
+				<p>When checked returns a boolean indicating whether or not the file exists and is a file.</p>
+			</explain>
+		</call>
+		<call implementation="native">
+			<name>isDirectory</name>
+			<form mode="get"/>
+			<explain>
+				<p>When checked returns a boolean indicating whether or not the file exists and is a directory.</p>
+			</explain>
+		</call>
+		<call implementation="native">
+			<overrides/>
+			<name>isReadable</name>
+			<form mode="get"/>
+			<explain>
+				<p>When checked returns a boolean indicating whether or not the file exists and can be read from by the user.</p>
+			</explain>
+		</call>
+		<call implementation="native">
+			<name>isWritable</name>
+			<overrides/>
+			<form mode="get"/>
+			<explain>
+				<p>When checked returns a boolean indicating whether or not the file exists and can be written to by the user.</p>
+			</explain>
+		</call>
+		<call implementation="native">
+			<name>isExecuteable</name>
+			<form mode="get"/>
+			<explain>
+				<p>When checked returns a boolean indicating whether or not the file exists and can be executed by the user.</p>
 			</explain>
 		</call>
 		<call implementation="js">
@@ -142,6 +197,48 @@ File.prototype.remove = File.prototype['delete'] = File.prototype.unlink = File.
 	}
 };
 			</source>
+		</call>
+		<call implementation="js">
+			<name>move</name>
+			<alias>mv</alias>
+			<form mode="call">path</form>
+			<explain>
+				<p>Attempts to move the file. This returns true if moving succeeds, but unlike <code>file.path = path;</code> returns false instead of throwing an error when moving fails.</p>
+			</explain>
+			<source>
+File.prototype.move = File.prototype.mv = function Move(path) {
+	try {
+		this.path = path;
+		return true;
+	} catch( e if e instanceof IOError ) {
+		return false;
+	}
+};
+			</source>
+		</call>
+		<call implementation="js">
+			<name>rename</name>
+			<form mode="call">name</form>
+			<explain>
+				<p>Attempts to move the file within the same directory to have a new filename. This returns true if moving succeeds, but unlike <code>file.name = path;</code> returns false instead of throwing an error when moving fails.</p>
+			</explain>
+			<source>
+File.prototype.rename = function Move(path) {
+	try {
+		this.name = path;
+		return true;
+	} catch( e if e instanceof IOError ) {
+		return false;
+	}
+};
+			</source>
+		</call>
+		<call implementation="native">
+			<name>copy</name>
+			<form mode="call">path</form>
+			<explain>
+				<p>Attempts to copy the file to another path. The path is resolved relative to the file's directory. This returns true if copying succeeds, and returns false when moving fails.</p>
+			</explain>
 		</call>
 	</methods>
 </api>

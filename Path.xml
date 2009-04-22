@@ -1,0 +1,71 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../api.xsl"?>
+<api path=".">
+	<class instance="file">File</class>
+	<namespace>io</namespace>
+	<construct>
+		<form>var p= new Path(pathString);</form>
+		<form>Path(pathString).doSomething();</form>
+		<form>(new Path(pathString)).doSomething();</form>
+		<form>path.resolve(pathString);</form>
+	</construct>
+	<static>
+		<call>
+			<name status="pending">newSubsystem</name>
+			<form>var FilePath = Path.newSubsystem(options={});</form>
+			<explain>
+				<p>Creates a new path system based on this path system.</p>
+				<p>Options is an object that can hold the following keys:</p>
+				<dl>
+					<dt>pathSeparator</dt>
+						<dd>Defines the <var>pathSeparator</var> constant for the path system.</dd>
+					<dt>listSeparator</dt>
+						<dd>Defines the <var>listSeparator</var> constant for the path system.</dd>
+					<dt>pathSplitter</dt>
+						<dd>Defines the <var>pathSplitter</var> constant for the path system.</dd>
+				</dl>
+			</explain>
+		</call>
+	</static>
+	<properties>
+		<call level="internal">
+			<name>_path</name>
+			<form mode="get"/>
+			<explain>
+				Returns a copy of the underlying path array used in the path object.
+			</explain>
+			<source>
+function Path(...) {
+	var pathArray = ...;
+	this.__defineGetter__('_path', function() pathArray.slice());
+};
+			</source>
+		</call>
+		<call>
+			<name>parent</name>
+			<form mode="get"/>
+			<explain>
+				<p>Return a path object for the parent directory.</p>
+				<p>For the path <code>foo/bar/baz.txt</code> the path <code>foo/bar/</code> would be returned.</p>
+				<p>For the path <code>foo/bar/</code> the path <code>foo/</code> would be returned.</p>
+				<p>For the path <code>foo/bar</code> the path <code>foo/</code> would be returned.</p>
+			</explain>
+			<source>
+Path.prototype.__defineGetter__('parent', function() {
+	var p = this._path;
+	if ( p[p.length-1] === '' ) p.pop();
+	p.pop();
+	p.push('');
+	return this.constructor(p);
+});
+			</source>
+		</call>
+		<call>
+			<name status="pending">normal</name>
+			<form mode="get"/>
+			<explain>
+				<p>Note: The name used to be normalize but was changed to normal since normalize is a verb and thus would normally be expected to be normalize() and perhaps apply to the current object instead of creating a new one. Note that the name may actually be changed to normalized instead.</p>
+			</explain>
+		</call>
+	</properties>
+</api>

@@ -1,0 +1,147 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../api.xsl"?>
+<api path="..">
+	<class instance="file">File</class>
+	<implements>io/StreamIO</implements>
+	<namespace>io</namespace>
+	<construct>
+		<form>var f = new File(fileName);</form>
+		<form>File(fileName).doSomething();</form>
+		<form>(new File(fileName)).doSomething();</form>
+		<form>File.open(fileName, ...);</form>
+	</construct>
+	<static>
+		<call>
+			<name>open</name>
+			<form mode="call">fileName, mode, flags=0</form>
+			<explain>
+				Shorthand form for <code>(new File(fileName)).open(mode, flags);</code>
+			</explain>
+			<source>
+File.open = function(fileName, mode, flags) (new File(fileName)).open(mode, flags);
+			</source>
+		</call>
+	</static>
+	<properties>
+		<call implementation="native">
+			<name>exist</name>
+			<form mode="get"/>
+			<form mode="set">false</form>
+			<explain>
+				<p>When checked returns a boolean indicating whether or not the file exists.</p>
+				<p>If <code>file.exists = false;</code> is used then the file is deleted. An IOError is thrown if deletion fails.</p>
+				<p>There is no current definition of the <code>file.exists = true;</code> use and will likely throw an error for now.</p>
+			</explain>
+		</call>
+		<call implementation="js">
+			<name>contents</name>
+			<form mode="get"/>
+			<form mode="set">false</form>
+			<form mode="set">someString</form>
+			<form mode="set">someBlob</form>
+			<explain>
+				<p>When checked returns a string containing the contents of the file.</p>
+				<p>If <code>file.contents = false;</code> is used then the file is deleted.</p>
+				<p>When set to something other than false the value is written to the file truncating it first. If you pass a <link to="std/Blob.xml">Blob</link> then writing is done in binary mode, otherwise text mode is used.</p>
+			</explain>
+			<source>
+File.prototype.__defineGetter__('contents', function() {
+	this.open('rt');
+	var text = this.read();
+	this.close();
+	return text;
+});
+File.prototype.__defineSetter__('contents', function(content) {
+	if(content === false) return this.exists = false;
+	this.open(content instanceof Blob ? 'wb' : 'wt');
+	this.write(content);
+	this.close();
+});
+			</source>
+			<call implementation="native">
+				<name>lastModified</name>
+				<form mode="get"/>
+				<form mode="set">1234456789</form>
+				<form mode="set">new Date('...');</form>
+				<explain>
+					<p>Gets or sets the lastModified timestamp of a file.</p>
+					<p>When getting it returns a Date object from the lastModified timestamp.</p>
+					<p>When setting it accepts a integer timestamp, or a date object.</p>
+				</explain>
+			</call>
+		</call>
+	</properties>
+	<methods>
+		<call implementation="native">
+			<name>open</name>
+			<form mode="call">mode, flags=0</form>
+			<explain>
+				<p>Open a file. <var>mode</var> is a string or bitmask indicating the mode to open in. The bitmask is a bitwise OR of the constants:</p>
+				<pre>
+* File.READ       - Open for reading (not compatible with WRITE or APPEND)
+* File.WRITE      - Open for writing from the beginning of the file (not compatible with READ or APPEND)
+* File.APPEND     - Open for writing from the end of the file (not compatible with WRITE or APPEND)
+* File.NOTRUNCATE - Don't truncate the file when opening (only useful with WRITE)
+* File.TEXT       - Open in TEXT mode where methods return Strings (default)
+* File.BINARY     - Open in BINARY mode where methods return Blobs.
+				</pre>
+				<p>A string format may also be used:</p>
+				<dl>
+					<dt>"r"</dt>
+					<dd>File.READ</dd>
+					<dt>"w"</dt>
+					<dd>File.WRITE</dd>
+					<dt>"w+"</dt>
+					<dd>File.WRITE | File.NOTRUNCATE</dd>
+					<dt>"a"</dt>
+					<dd>File.APPEND</dd>
+					<dt>"rt"</dt>
+					<dd>File.READ | File.TEXT</dd>
+					<dt>"rb"</dt>
+					<dd>File.READ | File.BINARY</dd>
+					<dt>"wt"</dt>
+					<dd>File.WRITE | File.TEXT</dd>
+					<dt>"wb"</dt>
+					<dd>File.WRITE | File.BINARY</dd>
+					<dt>"w+t"</dt>
+					<dd>File.WRITE | File.NOTRUNCATE | File.TEXT</dd>
+					<dt>"w+b"</dt>
+					<dd>File.WRITE | File.NOTRUNCATE | File.BINARY</dd>
+					<dt>"at"</dt>
+					<dd>File.APPEND | File.TEXT</dd>
+					<dt>"ab"</dt>
+					<dd>File.APPEND | File.BINARY</dd>
+				</dl>
+				<p>When open is called the file object gains access to the native StreamIO interface methods, and mixins added to the <link to="io/StreamIO.xml">StreamIO</link> class are imported into the File object if they do not exist on the instance already.</p>
+			</explain>
+		</call>
+		<call implementation="native">
+			<name>touch</name>
+			<form mode="call"/>
+			<explain>
+				<p>Touch (update the last modified timestamp) of a file with the current time.</p>
+				<p>Note that this is similar to <code>file.lastModified = new Date;</code> however it uses lower level code and is more reliable for simply updating a last modified timestamp to the current time.</p>
+			</explain>
+		</call>
+		<call implementation="js">
+			<name>remove</name>
+			<alias>['delete']</alias>
+			<alias>rm</alias>
+			<alias>unlink</alias>
+			<form mode="call"/>
+			<explain>
+				<p>Attempts to delete the file. This returns true if deletion succeeds, but unlike <code>file.exists = false;</code> returns false instead of throwing an error when deletion fails.</p>
+			</explain>
+			<source>
+File.prototype.remove = File.prototype['delete'] = File.prototype.unlink = File.prototype.rm = function Delete() {
+	try {
+		this.exists = false;
+		return true;
+	} catch( e if e instanceof IOError ) {
+		return false;
+	}
+};
+			</source>
+		</call>
+	</methods>
+</api>

@@ -17,10 +17,7 @@ table, caption, tbody, tfoot, thead, tr, th, td {
 	font-family: inherit;
 	vertical-align: baseline;
 }
-/* remember to define focus styles! */
-:focus {
-	outline: 0;
-}
+
 body {
 	line-height: 1;
 	color: black;
@@ -62,9 +59,11 @@ blockquote, q {
 }
 
 section {
-	margin: 5px 2px 15px;
+	/*margin-top: 5px;*/
+	padding: 0 2px 15px;
 }
 
+h3, h4, h5 { margin: 0px; }
 h3 {
 	font-size: 1.2em;
 	font-weight: bold;
@@ -75,4 +74,21 @@ h4 {
 h5 {
 	font-size: 1.0em;
 	font-weight: bold;
+}
+
+pre { font-family: monospace; }
+code { font-family: monospace; }
+var { font-family: monospace; }
+
+.aliases {
+	display: inline;
+}
+.aliases li {
+	display: inline;
+}
+
+.pending, .impl-js, .impl-native, .internal {
+	color: darkgrey;
+	font-size: .8em;
+	vertical-align: top;
 }

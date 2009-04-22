@@ -1,0 +1,31 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../api.xsl"?>
+<api path="..">
+	<class instance="streamio">StreamIO</class>
+	<namespace>io</namespace>
+	<construct>
+		<explain>
+			<p>StreamIO is a mixin object, it defines native calls for io streams that use the interface, and it's methods are imported into objects when a stream is opened.</p>
+			<p>Normally when you call open on an instance of something such as the <link to="io/File.xml">File</link> class it will import the StreamIO calls and give access to the natively implemented calls.</p>
+		</explain>
+	</construct>
+	<properties>
+		<call implementation="native">
+			<name>available</name>
+			<explain>
+			  <p>The number of bytes currently available in the stream to be read.</p>
+			</explain>
+		</call>
+	</properties>
+	<methods>
+		<call implementation="native">
+			<name>read</name>
+			<form mode="call"/>
+			<form mode="call">length</form>
+			<explain>
+				<p>Read data in from the stream. If a <var>length</var> is passed then that many bytes are read in from the stream.</p>
+				<p>If you omit the length read will read all the available bytes in the stream as defined by <code link="#properties-available">streamio.available</code>.</p>
+			</explain>
+		</call>
+	</methods>
+</api>

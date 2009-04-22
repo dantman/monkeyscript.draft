@@ -88,7 +88,7 @@ File('/home/daniel/Documents/')
 	Path.pathSplitter; // const '/'
 	
 	var p = new Path('foo/bar/../baz');
-	p.normalize; // Path foo/baz
+	p.normal; // Path foo/baz
 	p.absolute; // throw PathNoBaseError
 	
 }

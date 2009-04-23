@@ -21,6 +21,12 @@
 		<div id="root">
 			<nav id="toc">
 				<li><a href="#construct">construction</a></li>
+				<h3>Constants (static properties)</h3>
+				<ul>
+				<xsl:for-each select="/api/constants/call">
+					<li><a href="#constants-{name}"><xsl:value-of select="name"/></a></li>
+				</xsl:for-each>
+				</ul>
 				<h3>Static methods</h3>
 				<ul>
 				<xsl:for-each select="/api/static/call">
@@ -50,6 +56,7 @@
 				</ul>
 				</xsl:if>
 				<xsl:apply-templates select="construct"/>
+				<xsl:apply-templates select="constants"/>
 				<xsl:apply-templates select="static"/>
 				<xsl:apply-templates select="properties"/>
 				<xsl:apply-templates select="methods"/>
@@ -69,6 +76,12 @@
 		</ul>
 		<div><xsl:apply-templates select="explain"/></div>
 		</div>
+	</section>
+</xsl:template>
+<xsl:template match="constants">
+	<section id="constants">
+		<h3>Constants (static properties)</h3>
+		<xsl:apply-templates select="call"><xsl:with-param name="mode" select="'class'"/></xsl:apply-templates>
 	</section>
 </xsl:template>
 <xsl:template match="static">

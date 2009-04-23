@@ -3,11 +3,37 @@
 <api path=".">
 	<class instance="path">Path</class>
 	<construct>
-		<form>var p= new Path(pathString);</form>
+		<form>var p = new Path(pathString);</form>
 		<form>Path(pathString).doSomething();</form>
 		<form>(new Path(pathString)).doSomething();</form>
 		<form>path.resolve(pathString);</form>
 	</construct>
+	<constants>
+		<call>
+			<name>listSeparator</name>
+			<form mode="get"/>
+			<explain>
+				<p>The separator used to join and split path lists like those used in the PATH Environment variable.</p>
+				<p>Value for the core Path system is ':'</p>
+			</explain>
+		</call>
+		<call>
+			<name>pathSeparator</name>
+			<form mode="get"/>
+			<explain>
+				<p>The separator used to join together directory paths like foo/bar/baz.</p>
+				<p>Value for the core Path system is '/'</p>
+			</explain>
+		</call>
+		<call>
+			<name>pathSplitter</name>
+			<form mode="get"/>
+			<explain>
+				<p>A regex or string used to split directory paths appart. This is separate from the pathSeparator so that a regex such as /[\/\\]/ can be used to split on both / and \ separated paths.</p>
+				<p>Value for the core Path system is '/'</p>
+			</explain>
+		</call>
+	</constants>
 	<static>
 		<call>
 			<name status="pending">newSubsystem</name>

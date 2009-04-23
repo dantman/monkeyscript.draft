@@ -1,0 +1,129 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?xml-stylesheet type="text/xsl" href="../api.xsl"?>
+<api path="..">
+	<class instance='"string"'>String</class>
+	<construct>
+		<form>"string"</form>
+		<form>'string'</form>
+	</construct>
+	<properties>
+		<call>
+			<name>lc</name>
+			<form mode="get"/>
+			<explain>
+				<p>A lower case version of the string.</p>
+			</explain>
+			<source>
+String.prototype.__defineGetter__('lc', function() this.toLowerCase());
+			</source>
+		</call>
+		<call>
+			<name>uc</name>
+			<form mode="get"/>
+			<explain>
+				<p>An upper case version of the string.</p>
+			</explain>
+			<source>
+String.prototype.__defineGetter__('uc', function() this.toUpperCase());
+			</source>
+		</call>
+		<call>
+			<name>ucfirst</name>
+			<form mode="get"/>
+			<explain>
+				<p>A version of the string with the first letter in upper case.</p>
+			</explain>
+			<source>
+String.prototype.__defineGetter__('ucfirst', function() this[0].toUpperCase() + this.substr(1));
+			</source>
+		</call>
+	</properties>
+	<methods>
+		<call>
+			<name>repeat</name>
+			<form mode="call">number</form>
+			<explain>
+				<p>Repeat a string a number of times.</p>
+				<p>The current string is repeated <var>number</var> times. So "foo".repeat(5); returns "foofoofoofoofoo".</p>
+			</explain>
+		</call>
+		<call>
+			<name>expand</name>
+			<form mode="call">length</form>
+			<explain>
+				<p>Expand a string repeating it up to a certain length, anything extra will be chopped off.</p>
+				<p>The current string is repeated till it is longer than <var>length</var> and the leftovers are trimmed of.</p>
+				<p>So "foo".expand(5); will become "foofo".</p>
+			</explain>
+			<source>
+String.prototype.expand = function(len) this.repeat(Math.ceil(len / this.length)).chop(len);
+			</source>
+		</call>
+		<call>
+			<name>chop</name>
+			<form mode="call">len</form>
+			<explain>
+				<p>Chop off the end of a string if it's longer than a certain length.</p>
+			</explain>
+			<source>
+String.prototype.chop = function(len) this.substr(0, len);
+			</source>
+		</call>
+		<call>
+			<name>contains</name>
+			<form mode="call">str</form>
+			<explain>
+				<p>Test so see if a String contains another string.</p>
+			</explain>
+			<source>
+String.prototype.contains = function(str) this.indexOf(str) !== -1;
+			</source>
+		</call>
+		<call>
+			<name>startsWith</name>
+			<form mode="call">str</form>
+			<explain>
+				<p>Test to see if a String starts with another string.</p>
+			</explain>
+			<source>
+String.prototype.startsWith = function(str) this.indexOf(str) === 0;
+			</source>
+		</call>
+		<call>
+			<name>endsWith</name>
+			<form mode="call">str</form>
+			<explain>
+				<p>Test to see if a String ends with another string.</p>
+			</explain>
+			<source>
+String.prototype.endsWith = function(str) this.lastIndexOf(str) === this.length - str.length;
+			</source>
+		</call>
+		<call>
+			<name>explode</name>
+			<form mode="call">separator</form>
+			<form mode="call">separator, limit</form>
+			<explain>
+				<p>Split a string up by a separator.</p>
+				<p>This works similarly to .split, except it behaves more like PHP's explode function when you pass a limit to it.</p>
+				<p>split will discard the remaining portions of the string, while explode will isntead just ignore the remaining separators.</p>
+				<p>Note that explode does not accept a regex as a separator like split it is recomended to use the internal split unless you require a limit where you do not want to discard remaining portions of the string.</p>
+				<p>ie: 'foo,bar,baz'.split(',', 2) will give you an array containg 'foo' and 'bar' while 'foo,bar,baz'.explode(',', 2) will give you an array containing 'foo' and 'bar,baz'.</p>
+ 			</explain>
+ 			<source><![CDATA[
+String.prototype.explode = function(separator, limit) {
+	var arr = [];
+	var off = 0;
+	var p;
+	while((limit == undefined || arr.length < limit-1) && (p = this.indexOf(separator, off)) !== -1) {
+		arr.push(this.substring(off, p));
+		off = p + separator.length;
+	}
+	arr.push(this.substr(off));
+	
+	return arr;
+};
+			]]></source>
+		</call>
+	</methods>
+</api>

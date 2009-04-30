@@ -102,4 +102,22 @@ Path.prototype.__defineGetter__('parent', function() {
 			</explain>
 		</call>
 	</properties>
+	<methods>
+	  <call>
+	    <name>resolve</name>
+			<form mode="call">pathString</form>
+			<explain>
+				<p>Resolve a path onto this path creating a new one and returning it. This is similar to <link to="#methods-join">join</link> except paths are followed rather than appended.</p>
+				<p>So <code>Path('/foo/./bar/baz').resolve('../some/path/');</code> becomes [Path /foo/./bar/some/path/].</p>
+			</explain>
+	  </call>
+	  <call>
+	    <name>join</name>
+			<form mode="call">pathString</form>
+			<explain>
+				<p>Join a path onto this path creating a new one and returning it. This is similar to <link to="#methods-resolve">resolve</link> except paths are appended rather than followed.</p>
+				<p>So <code>Path('/foo/./bar/baz').join('../some/path/');</code> becomes [Path /foo/./bar/baz/../some/path/].</p>
+			</explain>
+	  </call>
+	</methods>
 </api>

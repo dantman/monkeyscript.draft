@@ -1,0 +1,143 @@
+
+Localized variables defined for modules:
+_native: A object containing any properties, functions, and classes exported by
+         the c library for the module.
+self: A reference to the module object/namespace which contains:
+      name: The name of the module.
+      path: The path on the system in which the module is installed to.
+exports: An object containing all the properties, functions, and classes to be
+         exported from the module for use.
+
+
+
+with(banana('io')) { File('me.txt').content = '...'; }
+var io = banana('io');
+io.File('me.txt').content = '...';
+
+with(banana('client.framework.jquery[v=1.2.6]')) { ... }
+with(banana('client.framework.jquery[v>=1.2.6]')) { ... }
+with(banana('client.framework.jquery[v>=1.2.6][v<1.3.0]')) { ... }
+with(banana('client.framework.jquery[1.2.6<=v<1.3.0]')) { ... }
+with(banana('client.framework.jquery[v=1.2]')) { ... }
+with(banana('client.framework.jquery[v=1]')) { ... }
+
+
+var serverjs = banana('serverjs');
+var File = serverjs.require('file').File;
+var File = banana('serverjs.file').File;
+
+
+-- src/modules/io/File.js
+function File(path) {
+	if(arguments.constructing) return new File(path);
+	var _handle = _native.fopen(path);
+	this.__defineGetter__('_handle', function() _handle);
+}
+
+exports.File = File;
+
+-- src/modules/io/module.json
+{
+	"id": "io",
+	"name": "IO",
+	"namespace": false,
+	"c": "io",
+	"submodules": {
+		"File": {
+			"name": "file",
+			"js": "File.js"
+		}
+	}
+}
+
+-- src/modules/_std/global.js
+-- Note: _std isn't actually loaded through the normal module system
+-- the _native here is actually the _native defined by the monkeyscript interpreter
+
+// Note: Be warry of LoadErrors coming from exec statements being caught falsely by include statements.
+// exec: Execute the file in the current context returning the last result evaluated (similar to running eval on a file); throws LoadError on failure to execute
+// globalExec: exec() the file in the global returning the last result evaluated (similar to running eval on a file); throws LoadError on failure to execute
+// include: exec() a file. Returns a boolean indicating if the file was loaded or not. (should this be globalExec?)
+// includeOnce: globalExec() a file, making sure not to exec again if already run. Returns a boolean indicating if the file was ever loaded.
+// should globalExec includes be labeled "requires"
+
+// to "require" a file use something like:
+if( !include('someScript.js') ) throw "Could not load script";
+// You can do that for a larger number of files with something like:
+
+// more control over include statements
+if(![
+  include('a.js'),
+  include('b.js'),
+  include('c.js'),
+].every( function(bool) bool) ) throw "Failed to load some of the scripts";
+// will try loading all and ignore failures till finished
+if( ![ 'a', 'b', 'c' ].every( function(p) include( p + '.js' ) ) ) throw "Failed to load some of the scripts";
+if(![
+  'a.js',
+  'b.js',
+  'c.js'
+].every(include)) throw "Failed to load some of the scripts";
+// will stop after the first failure
+[ 'a', 'b', 'c' ].forEach( function(p) { if( !include( p + '.js' ) ) throw "Failed to load " + p + ".js" ) } );
+for each( let p in [ 'a', 'b', 'c' ] ) if( !include( p + '.js' ) ) throw "Failed to load " + p + ".js";
+[
+  'a',
+  'b',
+  'c'
+].forEach( function(p) { if( !include( p + '.js' ) ) throw "Failed to load " + p + ".js" );
+
+function assert(test, error) { if( !test ) throw error || "Failed to load " + script };
+assert( include( 'foo.js' ) );
+assert( include( 'debug.js' ), "Failed to startup debugger" );
+
+function assertInclude(script, error) { if( !include( script ) ) throw error || "Failed to load " + script };
+assertInclude( 'foo.js' );
+assertInclude( 'debug.js', "Failed to startup debugger" );
+
+
+
+// IGNORE, old notes
+
+// These need context verification and testing. There is a posibility we'll need to define this in c.
+// The script should be executed in the current context like eval, not in internal scope where _native is available.
+
+
+function exec = _native.exec;
+
+var includeList = [];
+
+function include( path ) {
+	try {
+		requireList.push( path );
+		_native.exec( path );
+		return true;
+	} catch ( e if e instanceof LoadError ) {
+		return false;
+	}
+};
+
+function require( path ) {
+	return include( path );
+};
+
+function includeOnce( path ) {
+	try {
+		_native.exec( path );
+		// ToDo: Absolute and canonicalize paths
+		if( requireList.indexOf( path ) > -1 ) return true;
+		requireList.push( path );
+		return true;
+	} catch ( e if e instanceof LoadError ) {
+		return false;
+	}
+};
+
+function requireOnce( path ) {
+	// ToDo: Absolute and canonicalize paths
+	if( requireList.indexOf( path ) > -1 ) return true;
+	return include( path );
+};
+
+global.include = include;
+global.require = require;

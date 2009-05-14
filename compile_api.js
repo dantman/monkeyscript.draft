@@ -175,7 +175,7 @@ Node.prototype = {
 	getJSON: function() {
 		if(this.type !== TOK.CLASS) throw "getJSON is only implemented for Classes";
 		var json = {
-			ROOT: "",
+			ROOT: config.root,
 			module: this.module.name || "",
 			title: 'API Doc for ' + this.module.name + '#' + this.name
 		};
@@ -625,7 +625,8 @@ Tokenizer.prototype = {
 };
 
 var config = {
-	outputDir: './',
+	outputDir: './', // slash ending directory path to compile api docs into
+	root: '',        // web root to find styles and scripts
 	inputFiles: []
 };
 
@@ -635,6 +636,9 @@ while( arg = args.shift() ) {
 	switch(arg) {
 	case '-o':
 		config.outputDir = args.shift();
+		break;
+	case '-w':
+		config.root = args.shift();
 		break;
 	default:
 		config.inputFiles.push(arg);

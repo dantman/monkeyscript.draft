@@ -688,7 +688,7 @@ for ( var module in modules ) {
 	var modulePath = config.outputDir + module + '/';
 	print("Inside module " + module);
 	print("Path: " + modulePath);
-	fs.mkdirs(modulePath);
+	if( !fs.isDirectory(modulePath) ) fs.mkdirs(modulePath);
 	
 	for ( var className in mod.classes ) {
 		var	cls = mod.classes[className];

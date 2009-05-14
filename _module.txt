@@ -5,11 +5,12 @@ _native: A object containing any properties, functions, and classes exported by
 self: A reference to the module object/namespace which contains:
       name: The name of the module.
       path: The path on the system in which the module is installed to.
+      version: The version of the module.
 exports: An object containing all the properties, functions, and classes to be
          exported from the module for use.
 
 
-
+// usage
 with(banana('io')) { File('me.txt').content = '...'; }
 var io = banana('io');
 io.File('me.txt').content = '...';
@@ -27,6 +28,71 @@ var File = serverjs.require('file').File;
 var File = banana('serverjs.file').File;
 
 
+
+
+
+Examples: (banana include, install command, name)
+// For jQuery
+banana('client.framework.jquery');
+`banana install jquery`
+"jQuery"
+
+// For io
+banana('io');
+banana('io.File'); Only the File submodule
+`banana install io` ! actually part of stdlib
+"IO"
+
+// For URL
+banana('web.url');
+`banana install url` ! actually part of stdlib
+"URL"
+
+// For ejs
+banana('template.ejs');
+`banana install ejs`
+"Embeded JS Templating"
+
+// For ImageMagick
+banana('graphics.imagemagick');
+`banana install imagemagick`
+"ImageMagick"
+
+// MarkDown
+banana('markup.markdown');
+`banana install markdown`
+"MarkDown"
+
+// HTTP server
+banana('protocol.http.client')
+banana('protocol.http.server')
+`banana install http`
+"HTTP Server"
+
+
+
+// banana.json definition
+id: The id for the 
+name: The displayable name of the module
+namespace: The namespace for the module (used in banana() to grab the module)
+js: A list of .js files relative to the banana.json file to exec, a single string is cast to a single item array
+c: A list of library names (sans .dll or .so) to load into _native, a single string is cast to a single item array
+submodule: 
+
+
+(function() {
+	
+	
+	
+})();
+
+
+
+
+
+
+
+
 -- src/modules/io/File.js
 function File(path) {
 	if(arguments.constructing) return new File(path);
@@ -36,7 +102,7 @@ function File(path) {
 
 exports.File = File;
 
--- src/modules/io/module.json
+-- src/modules/io/module.json (probably actually going to be bananna.json)
 {
 	"id": "io",
 	"name": "IO",

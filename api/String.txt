@@ -1,0 +1,173 @@
+@module _std
+@class String
+
+Description
+	The String is a representation of textual data. SpiderMonkey stores strings
+	as 16bit UTF-16 character data.
+
+str.length;
+	@readonly
+	The number of UTF-16 charaters in the string.
+
+str.substr(start=0, length=Infinity);
+	@param start  The character index to start the substring extraction at
+	@param length The character length of the substring to extract
+	Extract a subsection of a string as a new string.
+	 * If `start` is larger than the string size an empty string is returned.
+	 * If `start` is negative the starting point is relative to the end of the string.
+	  * 0 will be used if the relative offset goes beyond the start of the string.
+	 * If `length` is equal to or less than 0 then an empty string is returned.
+
+str.substring(indexA=0, indexB=Infinity);
+	@param indexA The first character index point of the substring
+	@param indexB The second character index point of the substring
+	Extract a subsection of a string between two points as a new string.
+	 * Both indexes are bound to the size of the string. They will be shrunk or grown till they fit within the string (0&lt;i&le;str.length-1).
+	 * substring does not care about the order of the indexes. The smaller index will always be used as the start, and the larger as the end
+
+str.slice(start=0, end=Infinity);
+	@param start The character index to start slicing at
+	@param end   The character index to end slicing at
+	Extract a subsection of a string between two points as a new string.
+	 * slice cares about the order of the index arguments. If your end is the same as or before your start slice will return an empty string.
+	 * If either start or end is negative it is considered relative to the end of the string.
+
+str.indexOf(other, offset=0);
+
+str.lastIndexOf(other, offset=0);
+
+
+str.contains(other);
+	@debate contains or has? Should this be consistent with array?
+	@param other The other string to check for
+	Check if the string contains another string.
+	-- Source
+	String.prototype.contains = function(other) this.indexOf(other) > -1;
+	----
+
+str.startsWith(other);
+	@param other The other string to check for
+	Check if the string starts with another string.
+	-- Source
+	String.prototype.startsWith = function(other) this.substr(0, other.length) === other;
+	----
+
+str.endsWith(other);
+	@param other The other string to check for
+	Check if the string ends with another string.
+	-- Source
+	String.prototype.startsWith = function(other) this.substr(-other.length, other.length) === other;
+	----
+
+str.numberOf(other, offset=0);
+str.countOf(other, offset=0);
+	@nameTBD
+	Count up the number of occurrences of `other` inside `str`.
+	-- Source
+	String.prototype.numberOf = function(other, offset) {
+		offset = offset || 0;
+		var i, c = 0;
+		while( (i = this.indexOf(other, offset)) && i >= 0 ) {
+			c++;
+			offset = i + other.length;
+		}
+		return c;
+	};
+	----
+
+str.split(separator, [limit]);
+	@param separator A string or regex separator to split by
+	@param limit     A maximum limit to how many items the string may be split into
+	Separate a string into an array splitting by a separator.
+	If `limit` is used then any additional items will be discarded.
+	Thus `"foo,bar,baz".split('.',2);` will return `["foo", "bar"]`.
+
+str.explode(separator, [limit]);
+	@param separator A string (TBD: or regex?) separator to split by
+	@param limit     A maximum limit to how many items the string may be split into
+	Separate a string into an array splitting by a separator.
+	If `limit` is used then explode will stop splitting after it has reached the limit.
+	Thus `"foo,bar,baz".explode('.',2);` will return `["foo", "bar,baz"]`.
+	split is a native method and much faster, so unless you need to make use of
+	the specific case of limited splitting explode has please use split instead.
+
+str.partition
+str.partitionRight
+
+str.scan(regex);
+	@param regex The regex to scan over the string with
+	Walk through a string collecting a list of all the matches to regex and return
+	and array containing them all. If regex has any groups then the items will
+	each be an array containing the values of those groups (0 indexed, 0 is NOT the whole string).
+	If regex does not have any groups then each item will be the string matched.
+	-- Example
+	> "foo bar baz".scan(/\w+/)
+	["foo", "bar", "baz"]
+	> "a=b c=d e=f".scan(/(\w+)=(\w+)/)
+	[["a", "b"], ["c", "d"], ["e", "f"]]
+	> var o = {};
+	> "a=b c=d e=f".scan(/(\w+)=(\w+)/).forEach(function(a) { o[a[0]] = a[1]; });
+	> o
+	{ a: "b", c: "d", e: "f" }
+	----
+	-- Source
+	String.prototype.scan = function(regex, offset) {
+		var m, list = [];
+		if( regex.global ) {
+			if( offset ) regex.lastIndex = offset;
+			while( m = regex(this) )
+				list.push( m.length > 1 ? m.slice(1) : m[0] );
+		} else {
+			offset = offset || 0;
+			while( m = this.substr(offset).match(regex) ) {
+				offset += m.index + m[0].length;
+				list.push( m.length > 1 ? m.slice(1) : m[0] );
+			}
+		}
+		return list;
+	};
+	----
+
+str.uc;
+str.toUpperCase();
+	Returns a version of the string with all characters in upper case.
+
+str.uc;
+str.toUpperCase();
+	Returns a version of the string with all characters in lower case.
+
+str.ucfirst;
+	Returns a version of the string with the first character converted to upper case.
+
+str.lcfirst;
+	Returns a version of the string with the first character converted to lower case.
+
+
+str.reverse();
+
+str.repeat(times);
+
+str.expand(length);
+
+str.trim();
+str.trimLeft();
+str.trimRight();
+
+str.strip(chars);
+str.stripLeft(chars);
+str.stripRight(chars);
+
+str.pad(len, [chars]);
+str.padLeft(len, [chars]);
+str.padRight(len, [chars]);
+
+str.justify(len, [with]);
+str.justifyLeft(len, [with]);
+str.justifyRight(len, [with]);
+
+
+
+str.wordwrap(linesize);
+	@TBD Should we include break= like PHP?
+
+

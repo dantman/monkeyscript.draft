@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+	<title>{title|html}</title>
+	
+	<link rel="stylesheet" type="text/css" href="{ROOT}/api2.css">
+	<link rel="stylesheet" type="text/css" href="{ROOT}/prettify/prettify.css">
+	<script type="text/javascript" src="{ROOT}/prettify/prettify.js"></script>
+	<script type="text/javascript" src="{ROOT}/jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="{ROOT}/api2.js"></script>
+</head>
+<body>
+<div id=root>
+	<article>
+		<section>
+			{.section class}
+			<header>
+				<h1>Module: {module|html}</h1>
+				<h2>Class: {name|html}</h2>
+			</header>
+			<section class=class>
+				<h2>{name|html}</h2>
+				{.section description}
+				<section class=desc>
+					<h3>Description</h3>
+					{@}
+				</section>
+				{.end}
+				{.section props}
+					<h3>Properties, methods, and other calls</h3>
+					{.repeated section @}
+					<section class=prop>
+						<h4>
+							<ul>
+								{.repeated section calls}
+								<li>{callhtml}</li>
+								{.end}
+							</ul>
+						</h4>
+						<ul class="flags">
+							{.section readonly}<li>readonly</li>{.end}
+							{.section nameTBD}<li>nameTBD</li>{.end}
+						</ul>
+						<ul class="notes">
+							{.repeated section alias}
+							<li>Alias: {@|html}</li>
+							{.end}
+							{.repeated section debate}
+							<li>Debate point: {@|html}</li>
+							{.end}
+							{.repeated section TBD}
+							<li>TBD: {@|html}</li>
+							{.end}
+						</ul>
+						{body}
+					</section>
+					{.end}
+				{.end}
+			</section>
+			{.or}
+			<fieldset class=error>
+				<h2>Error</h2>
+				<p>No classs defined inside of api doc.</p>
+			</fildset>
+			{.end}
+		</section>
+	</article>
+</div>
+</body>

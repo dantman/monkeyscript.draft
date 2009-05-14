@@ -1,0 +1,24 @@
+@module io
+@class File
+
+file.open(flags, [mode], [block]);
+	@param flags 
+	@param mode  
+	@param block A block function to call in the context of the opened stream
+	
+	If a block function is given then the file will only be open within the context
+	of that function, once the function finishes then the file will be closed.
+	-- Example
+	var f = new File('/safe/path/to/file.txt');
+	var content = f.open('r').read();
+	content.reverse();
+	f.open('w').write(content);
+	----
+	-- Example
+	var f = new File('/safe/path/to/file.txt');
+	var content = false;
+	f.open('r', function() {
+		content = this.read();
+	});
+	content; // file's contents
+	----

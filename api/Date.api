@@ -5,6 +5,10 @@
 Date.parseISO(dateString);
 	Parse an ISO 8601 timestamp into a numerical unix timestamp.
 	-- Source
+	// ToDo: Handle combined dates (ie: YYYYMMDD as well as YYYY-MM-DD, note that YYYYMM is not valid)
+	// ToDo: Allow trailing pieces to be ommitted
+	// ToDo: Support ordinal dates
+	// ToDo: Parse Z and [-+](\d{2})(?::?(\d{2})) timezones
 	Date.parseISO = function(str) {
 		var m = /(\d{4})-(\d\d?)-(\d\d?)(?:[ T](\d\d?):(\d\d?)(?::(\d\d?))?)?/.exec(str);
 		m.shift();
@@ -19,7 +23,7 @@ Date.fromISO(dateString);
 date.toISOTimeString();
 	Create an ISO 8601 formatted string containing the UTC time from the date object.
 	-- Source
-	Date.prototype.toISOTimeString = function() [this.getUTCHours().pad(2), this.getUTCMinutes().pad(2), this.getUTCSeconds().pad(2)].join(":");
+	Date.prototype.toISOTimeString = function() [this.getUTCHours().pad(2), this.getUTCMinutes().pad(2), this.getUTCSeconds().pad(2)].join(":") + 'Z';
 	----
 
 date.toISODateString();

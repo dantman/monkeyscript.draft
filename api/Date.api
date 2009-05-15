@@ -10,7 +10,7 @@ Date.parseISO(dateString);
 	// ToDo: Support ordinal dates
 	// ToDo: Parse Z and [-+](\d{2})(?::?(\d{2})) timezones
 	Date.parseISO = function(str) {
-		var m = /(\d{4})-(\d\d?)-(\d\d?)(?:[ T](\d\d?):(\d\d?)(?::(\d\d?))?)?/.exec(str);
+		var m = /(\d{4})-(\d\d?)-(\d\d?)(?:[ T](\d\d?):?(\d\d?)(?::?(\d\d?))?)?/.exec(str);
 		m.shift();
 		return Date.UTC.apply(Date, m);
 	};

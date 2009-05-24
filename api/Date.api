@@ -18,7 +18,9 @@ Date.parseISO(dateString);
 
 Date.fromISO(dateString);
 	Create a new date object using an ISO 8601 timestamp.
+	-- Source
 	Date.fromISO = function(str) new Date(this.parseISO(str));
+	----
 
 date.toISOTimeString();
 	Create an ISO 8601 formatted string containing the UTC time from the date object.

@@ -1,8 +1,9 @@
+@module _std
 @class Blob
 
 Description
 	The Blob is a representation of binary data. It is nearly parallel in API
-	to the String. The primary difference is rather than 16-bit character data
+	to the [[String]]. The primary difference is rather than 16-bit character data
 	the Blob stores 8-bit bytes. Like strings the blobs are immutable.
 
 blob.length;
@@ -35,14 +36,14 @@ blob.lastIndexOf(blob, offset=0);
 	Returns the index within the calling blob object of the last occurrence of
 	the specified value, or -1 if not found.
 
-blob.charAt(index, encoding=UTF-16);
-	@param index The index of the byte to extract.
-	@param encoding The character encoding used inside the binary data.
-	Extract a single character from a single byte within a blob.
-	`encoding` defines the string encoding of the blob which will be used to
-	convert the blob into the native UTF-16 data.
-	This function is merely provided for completeness with the string api,
-	it's recommended to read multiple bytes at once using #stringAt.
+//blob.charAt(index, encoding=UTF-16);
+//	@param index The index of the byte to extract.
+//	@param encoding The character encoding used inside the binary data.
+//	Extract a single character from a single byte within a blob.
+//	`encoding` defines the string encoding of the blob which will be used to
+//	convert the blob into the native UTF-16 data.
+//	This function is merely provided for completeness with the string api,
+//	it's recommended to read multiple bytes at once using #stringAt.
 
 blob.integerAt(offset, size, signed=false, networkEndian=false);
 	@param offset        The number of bytes from the start of the blob to start at.

@@ -1,0 +1,18 @@
+@module _std
+@class Number
+
+Description
+	The Number class handles numerical data. Both Integers and Floats are handled
+	using the Number class.
+
+num.pad(length, fillChar='0', radix=10);
+	@param length   The length of the padded string to output.
+	@param fillChar The character to fill empty spots in the string with
+	@param radix    The radix to use when converting num into a string.
+	Turn a number into a left padded string. By default this will be a zero-padded
+	string sutable to be parsed with a proper radix of 10.
+	-- Source
+	Number.prototype.pad = function( width, fillChar, radix ){ var s = this.toString(radix || 10); var f = (new Array( s.length < Math.abs(width) ? Math.abs(width) - s.length + 1 : 0)).join(fillChar || '0');  return width > 0 ? f + s : s + f };
+	----
+
+

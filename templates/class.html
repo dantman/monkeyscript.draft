@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang=en>
+<head>
+	<title>MonkeyScript Class API [{module|html}::{class|html}]</title>
+	
+	<link rel="stylesheet" type="text/css" href="../api2.css">
+	<link rel="stylesheet" type="text/css" href="../prettify/prettify.css">
+	<script type="text/javascript">
+		var config = {.meta-left} root: '../' {.meta-right};
+	</script>
+	<script type="text/javascript" src="../prettify/prettify.js"></script>
+	<script type="text/javascript" src="../jquery-1.3.2.min.js"></script>
+	<script type="text/javascript" src="../jquery.scrollTo-min.js"></script>
+	<script type="text/javascript" src="../api2.js"></script>
+</head>
+<body>
+<div id=root>
+	<a name=top id=top></a>
+	<article>
+		<section>
+			<header>
+				<span id=scripted class=off>
+					JavaScript <span>Off</span>
+				</span>
+				<h1>Module: <a href="./">{module|html}</a></h1>
+				<h2>Class: {class|html}</h2>
+			</header>
+			<nav id=nav>
+				{.section props}
+				<ul>
+					<li><a href="./"">#module</a></li>
+					<li><a href="#top">#top</a></li>
+					<li><a href="#description"">Description</a></li>
+				{.repeated section @}
+					{.repeated section calls}{.section id}
+					<li><a href="#{@|htmltag}"">{callname|html}</a></li>
+					{.end}{.end}
+				{.end}
+				</ul>
+				{.end}
+			</nav>
+			<section class=class>
+				{.section description}
+				<section id=description class=desc>
+					<h3>Description</h3>
+					<section>
+						{@}
+					</section>
+				</section>
+				{.end}
+				{.section props}
+					<h3>Properties, methods, and other calls</h3>
+					{.repeated section @}
+					<section class=prop>
+						{.repeated section calls}{.section id}
+						<a name="{@|htmltag}" id="{@|htmltag}"></a>
+						{.end}{.end}
+						<h4>
+							<ul>
+							{.repeated section calls}
+								<li>{callhtml}</li>
+							{.end}
+							</ul>
+						</h4>
+						<section>
+							<ul class=flags>
+								{.section readonly}<li>readonly</li>{.end}
+								{.section nameTBD}<li>nameTBD</li>{.end}
+							</ul>
+							<ul class=notes>
+								{.repeated section alias}
+								<li>Alias: {@|html}</li>
+								{.end}
+								{.repeated section debate}
+								<li>Debate point: {@|html}</li>
+								{.end}
+								{.repeated section TBD}
+								<li>TBD: {@|html}</li>
+								{.end}
+							</ul>
+							{.section arguments}
+							<table class=args>
+							{.repeated section @}
+								<tr><td>{name|html}:</td><td>{text|html}</td></tr>
+							{.end}
+							</table>
+							{.end}
+							{body}
+						</section>
+						<footer>
+							<span class=commentsbutton>JS Required for comments</span>
+						</footer>
+					</section>
+					{.end}
+				{.end}
+			</section>
+		</section>
+	</article>
+</div>
+</body>

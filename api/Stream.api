@@ -1,0 +1,66 @@
+@module io
+@class Stream
+
+Description
+	The Stream class handles reading and writing to various types of streams
+	including those for [[File]]s, [[Socket]]s, and [[Pipe]]s. You do not instance a stream
+	on your own, but rather a suitable one is created by other instances.
+	Binary streams return [[Blob]]s, while text streams return [[String]]s.
+	
+	Note that the "Stream" class is more of a special base class. Some parts
+	of the io API may subclass the Stream class to augment it with method changes
+	that fit their own api. This should only matter to the programmer who is writing
+	the actual io system. The end programmer should not care whether the stream
+	is the Stream class itself or a hidden subclass.
+
+stream.isOpen;
+	A boolean indicating whether the stream is still open or not.
+
+stream.text;
+stream.binary;
+	Mutually exclusive booleans indicating if the stream is opened in text or binary mode.
+
+stream.encoding;
+	The encoding used for the stream. If the stream is binary then 'binary' is
+	returned as the encoding.
+
+stream.close();
+	Close the handle for the stream. This is normally done automatically when
+	the stream is garbage collected but you are free to close it before that point
+	on your own if you believe another part a program may be keeping it around.
+
+stream.read();
+stream.yank();
+stream.yank(Infinity);
+	Read the entire stream blocking until read has finished.
+
+stream.read(max);
+	@param max The maximum number of bytes to read from the stream
+	Read a maximum number of bytes from the stream. Less bytes than that may be
+	returned but a return cannot be empty. An empty string or blob (just check for !returned.length)
+	indicates that EOF has been reached.
+
+stream.yank(len);
+	@param len The number of bytes to read from the stream
+	Read a specific number of bytes from the stream. yank will block until the
+	number of desired bytes are read (Infinity is a special case handled the same as omitting the number).
+
+stream.write(data, [length=Infinity]);
+	@param data   The data to write into the stream
+	@param length A limit to the size of the data to write
+	Write some data into the stream. `length` may be used to limit the amount
+	of bytes from `data` that may be written to the stream.
+	
+	write may not actually write all the data or even up to length. In this case
+	write will return the remaining data that has not been written so you may
+	attempt to write it later. Write is finished writing once the data it returns
+	is empty (check for `!remaining.length`.
+
+stream.shove(data, [length=Infinity]);
+	@param data   The data to write into the stream
+	@param length A limit to the size of the data to write
+	Write some data into the stream making sure that it is all written. shove
+	will block until all of data is written and return true. `limit` may be used
+	to limit the number of bytes from data that may actually be written.
+
+

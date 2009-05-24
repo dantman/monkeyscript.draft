@@ -1,0 +1,66 @@
+@module io
+@class Socket
+
+Description
+	The Socket class handles socket based communication.
+
+new Socket();
+new Socket('tcp');
+	Creates a new Socket for the TCP protocol.
+
+new Socket('udp');
+	Creates a new Socket for the UDP protocol.
+
+sock.address;
+	The [[Address]] that the socket is bound to.
+
+sock.ip;
+	The ip address the socket is bound to.
+
+sock.port;
+	The port the socket is bound to.
+
+sock.timeout;
+	The default timeout for the socket. Use Infinity to set no timeout.
+
+sock.address = address;
+sock.bind(address);
+sock.bind(ip, [port]);
+	@param address An internet [[Address]] to bind to.
+	@param ip      An ip address to use when constructing the address to bind to.
+	@param port    A port to use when constructing the address to bind to.
+	Bind the socket to a local address.
+
+sock.listen(backlog=8);
+	@param backlog The maximum number of pending connections.
+	Changes the socket into listen mode. The socket will start listening for
+	pending connections on the address and port it is bound to.
+	
+	Pending connections will build up in a queue with a maximum number specified
+	by `backlog`. Those pending connections may be accepted using #accept.
+
+sock.accept([timeout]);
+	@param timeout A timeout to wait for pending connections.
+	Accepts the first connection in the waiting queue setup by #listen and creates
+	a Socket instance for it. accept() returns the new socket instance created.
+	
+	accept() will block until `timeout` is reached (waiting forever if limit is set to none)
+	and return false if no connection drops into the queue before the timeout is up.
+
+sock.connect(address, [timeout]);
+sock.connect(ip, port, [timeout]);
+	@param address An internet [[Address]] to connect to.
+	@param ip      An ip address to use when constructing the address to connect to.
+	@param port    A port to use when constructing the address to connect to.
+	@param timeout A timeout to wait while trying to connect.
+	Establish a connection to a local or remote socket which is listening for connections.
+	
+	connect() will block until `timeout` is reached, the system's native connection
+	time limit is reached, or an error occurs.
+	
+	If this is called on a UDP socket, since UDP is a connectionless protocol
+	this will merely save a address onto the socket so that socket instance methods
+	can be used instead of using static methods and specifying the address all the time.
+
+
+

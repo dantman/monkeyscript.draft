@@ -156,6 +156,47 @@ str.trimRight();
 str.strip(chars);
 str.stripLeft(chars);
 str.stripRight(chars);
+	Strip a number of characters from the start or end of a string. The default
+	is to strip whitespace from the string like the trim functions to.
+	
+	RegExp should be avoided, optimizations will likely go towards use of plain
+	strings. Besides prebuilt thigns like \w regexes add no real advantages
+	for expressing single character trimming
+	
+	-- Source
+	// Pre-cache a list of Unicode whitespace as an object
+	var whitespace = {};
+	for ( var i = 0; i <= 1114111; i++ ) {
+		var c = String.fromCharCode(i);
+		if ( /\s/.test(c) )
+			whitespace[c] = true;
+	}
+	String.prototype.stripLeft = function(chars) this.strip(chars, {left:true});
+	String.prototype.stripLeft = function(chars) this.strip(chars, {right:true});
+	String.prototype.strip = function(chars, mode) {
+		mode = mode || {left:true,right:true};
+		if( !mode.left && !mode.right ) return this; // cut it off early if someone did something wierd
+		
+		if ( chars ) {
+			if ( typeof chars === 'string' ) {
+				// Convert a string into an object we can check using `char in chars`
+				var oldChars = chars;
+				chars = {};
+				for ( var i = 0, l = oldChars.length; i<l; --i )
+					chars[oldChars[i]] = true;
+			} if(!(chars instanceof RegExp)) throw new TypeError('chars must be either a string or regex');
+		} else chars = whitespace; // default to whitespace
+		
+		var start = 0, end = this.length-1;
+		if ( mode.left )
+			while( chars instanceof RegExp ? chars.text(this[start]) : this[start] in chars ) ++start;
+		if ( start === end ) return ""; // cut this off ahead of time if the string is known to be only whitespace
+		if ( mode.right )
+			while( chars instanceof RegExp ? chars.text(this[end-1]) : this[end-1] in chars ) --end;
+		
+		return this.substring(start, end);
+	};
+	----
 
 str.pad(len, [chars]);
 str.padLeft(len, [chars]);

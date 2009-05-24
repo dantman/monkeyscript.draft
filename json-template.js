@@ -495,17 +495,15 @@ function Template(template_str, options) {
 
   var program = _Compile(template_str, options);
 
-  return  {
-    render: function(data_dict, callback) {
-      var context = _ScopedContext(data_dict, options.undefined_str);
-      _Execute(program.Statements(), context, callback);
-    },
-
-    expand: function(data_dict) {
-      var tokens = [];
-      this.render(data_dict, function(x) { tokens.push(x); });
-      return tokens.join('');
-    }
+  this.render = function(data_dict, callback) {
+    var context = _ScopedContext(data_dict, options.undefined_str);
+    _Execute(program.Statements(), context, callback);
+  };
+  
+  this.expand = function(data_dict) {
+    var tokens = [];
+    this.render(data_dict, function(x) { tokens.push(x); });
+    return tokens.join('');
   };
 }
 

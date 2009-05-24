@@ -1,0 +1,55 @@
+@module io
+
+@example Reading from a file
+
+--
+// Quick read() style
+var content = File.open('./foo.txt', 'r').read();
+
+// Block open() style
+var content;
+File.open('./foo.txt', 'r', function(s) {
+	content = s.read()
+});
+
+// Long separate variables (ie: For when doing a lot of stuff on the file)
+var f = new File('./foo.txt');
+if( f.isFile ) {
+	let s = f.open('r'); // Note that we use let to guarantee the stream gets garbage collected when this if ends
+	var content = s.read();
+}
+
+// Using File's content getter
+var content = File('./foo.txt').content;
+----
+
+@example The power of Directory
+
+--
+// Iteration over a directory
+for each ( let file in Directory('.') )
+	if( file.isDirectory )
+		print( file.name + '/' );
+
+// Use recursive mode for iteration
+for each ( let file in Directory('.').recursive() )
+	if ( file.isFile )
+		print( file.path );
+
+// Glob on a Directory
+var list = Directory('.').glob('*.txt');
+
+// Just grab a list of stuff inside a directory
+var list = Directory('.').list();
+
+// File only mode
+for each ( let file in Directory('.').files() )
+	print( file.name );
+
+// The list returned by glob and list is actually a FileArray not a normal Array
+// You can do special things with it
+Directory('.').glob('*~').remove();
+
+----
+
+

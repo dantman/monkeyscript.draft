@@ -114,7 +114,7 @@ var tokens = ["", // Skip 0
 var TOK = {};
 for ( var t in tokens ) TOK[tokens[t]] = parseInt(t, 10);
 
-function Node(t) {
+function Node(doc, t) {
 	if( typeof t == 'number' ) {
 		this.type = t;
 	} else {
@@ -126,6 +126,7 @@ function Node(t) {
 		this.calls = [];
 		//this.arguments = [];
 	}
+	this.doc = doc;
 	this.length = 0;
 }
 Node.prototype = {
@@ -138,6 +139,7 @@ Node.prototype = {
 		
 		options = options || {};
 		options.name = name;
+		options.text = options.text || '';
 		if(!options.optionalBlock) options.optionalBlock = { open: false, close: false }
 		
 		this.calls[this.calls.length-1].arguments.push(options);
@@ -146,7 +148,7 @@ Node.prototype = {
 		return options;
 	},
 	
-	toString: function(indent) {
+	/*toString: function(indent) {
 		indent = indent || [];
 		var s = '{\n'
 		indent.push('	');
@@ -170,72 +172,70 @@ Node.prototype = {
 		indent.pop();
 		s += indent.join('') + '}\n';
 		return s;
-	},
+	},*/
 	
 	getJSON: function() {
 		if(this.type !== TOK.CLASS) throw "getJSON is only implemented for Classes";
 		var json = {
 			ROOT: config.root,
-			module: this.module.name || "",
-			title: 'API Doc for ' + this.module.name + '#' + this.name
+			module: this.module.name || ""
 		};
-		//if( this.classes && this.classes.length ) {
-		//	json.classes = [];
+		
+		json['class'] = this.name;
+		if( this.description ) json.description = this.description.getHTML();
+		if( this.props && this.props.length ) {
+			json.props = [];
+			for ( var j = 0; j < this.props.length; j++ ) {
+				var prop = this.props[j];
+				var p = {};
+				var k, a = 'readonly,alias,debate,nameTBD,TBD'.split(',');
+				while( k = a.shift() ) p[k] = prop[k];
+				p.arguments = [];
+				for ( k in prop.args ) if( prop.args[k].text ) p.arguments.push( prop.args[k] );
+				p.body = prop.getHTML();
+				
+				if( prop.calls && prop.calls.length ) {
+					p.calls = [];
 			
-		//	for ( var i = 0; i < this.classes.length; i++ ) {
-		//		var cls = this.classes[i];
-				var cls = this;
-				var c = { name: cls.name };
-				if( cls.description ) c.description = cls.description.getHTML();
-				if( cls.props && cls.props.length ) {
-					c.props = [];
-					for ( var j = 0; j < cls.props.length; j++ ) {
-						var prop = cls.props[j];
-						var p = {};
-						var k, a = 'readonly,alias,debate,nameTBD,TBD'.split(',');
-						while( k = a.shift() ) p[k] = prop[k];
-						p.body = prop.getHTML();
-						
-						if( prop.calls && prop.calls.length ) {
-							p.calls = [];
-					
-							for ( var z = 0; z < prop.calls.length; z++ ) {
-								var call = prop.calls[z];
-								var q = {};
-								var k, a = 'name,on,instanced,type'.split(',');
-								while( k = a.shift() ) q[k] = call[k];
-								q.callhtml = q.on;
-								if(q.type !== '[]') q.callhtml += '<span class="pun dot">.</span>' + q.name;
-								if(q.type === '[]') q.callhtml += '<span class="pun bracket">[</span>';
-								if(q.type === 'func') q.callhtml += '<span class="pun paren">(</span>';
-								if(q.type !== 'prop')
-									for ( var a = 0; a<call.arguments.length; a++ ) {
-										var arg = call.arguments[a];
-										if(a>0) q.callhtml += '<span class="pun comma">,</span> ';
-										if(arg.optionalBlock.open) q.callhtml += '<span class="pun optbracket">[</span>';
-										q.callhtml += '<span class="pln' + ( arg.optional ? ' optional' : '' ) + '">';
-										q.callhtml += arg.name === '...' ? '&hellip;' : arg.name;
-										q.callhtml += '</span>';
-										if(arg.defaultValue) q.callhtml += '<span class="pun eq">=</span>' + arg.defaultValue;
-										if(arg.optionalBlock.close) q.callhtml += '<span class="pun optbracket">]</span>';
-									}
-								if(q.type === 'func') q.callhtml += '<span class="pun paren">)</span>';
-								if(q.type === '[]') q.callhtml += '<span class="pun bracket">]</span>';
-								q.callhtml += ';'
-								p.calls.push(q);
+					for ( var z = 0; z < prop.calls.length; z++ ) {
+						var call = prop.calls[z];
+						var q = {};
+						var k, a = 'id,name,on,instanced,type'.split(',');
+						while( k = a.shift() ) q[k] = call[k];
+						q.callname = q.on;
+						if(q.typw !== '[]') q.callname += '.' + q.name;
+						if(q.type === '[]') q.callname += '[]';
+						if(q.type === 'func') q.callname += '()';
+						if(q.type === 'set') q.callname += '=';
+						q.callhtml = '<span class="' + ( q.instanced ? 'pln' : 'typ' ) + '">' + q.on + '</span>';
+						if(q.type !== '[]') q.callhtml += '<span class="pun dot">.</span>' + q.name;
+						if(q.type === '[]') q.callhtml += '<span class="pun bracket">[</span>';
+						if(q.type === 'func') q.callhtml += '<span class="pun paren">(</span>';
+						if(q.type === 'set') q.callhtml += ' <span class="pun eq">=</span> ';
+						if(q.type !== 'get')
+							for ( var a = 0; a<call.arguments.length; a++ ) {
+								var arg = call.arguments[a];
+								if(a>0) q.callhtml += '<span class="pun comma">,</span> ';
+								if(arg.optionalBlock.open) q.callhtml += '<span class="pun optbracket">[</span>';
+								q.callhtml += '<span class="pln' + ( arg.optional ? ' optional' : '' ) + '">';
+								q.callhtml += arg.name === '...' ? '&hellip;' : arg.name;
+								q.callhtml += '</span>';
+								if(arg.defaultValue) q.callhtml += '<span class="pun eq">=</span>' + arg.defaultValue;
+								if(arg.optionalBlock.close) q.callhtml += '<span class="pun optbracket">]</span>';
 							}
-					
-						}
-						
-						c.props.push(p);
+						if(q.type === 'func') q.callhtml += '<span class="pun paren">)</span>';
+						if(q.type === '[]') q.callhtml += '<span class="pun bracket">]</span>';
+						q.callhtml += ';'
+						p.calls.push(q);
 					}
-					
-				}
-				json['class'] = c;
-				//json.classes.push(c);
-			//}
 			
-		//}
+				}
+				
+				json.props.push(p);
+			}
+			
+		}
+		
 		return json;
 	},
 	
@@ -252,8 +252,9 @@ Node.prototype = {
 		var html = '';
 		if( this.type === TOK.SOURCE ) {
 			var escape = { '<': '&lt', '>': '&gt;', '&': '&amp;' };
-			if( this.header ) html += '<h5>' + this.header.replace(/[<>&]/, function(m) { return escape[m]; }) + '</h5>';
-			html += '<pre class="prettyprint lang-js">' + this.getText().replace(/[<>&]/, function(m) { return escape[m]; }) + '</pre>';
+			html += '<pre class="prettyprint lang-js">'
+			if( this.header ) html += '<h5>' + this.header.replace(/[<>&]/g, function(m) { return escape[m]; }) + '</h5>';
+			html += this.getText().replace(/[<>&]/g, function(m) { return escape[m]; }) + '</pre>';
 		} else {
 			html += '<p>';
 			var list = [];
@@ -265,13 +266,18 @@ Node.prototype = {
 						html += '</p><p>\n';
 						while(list.pop()) html += '</ul>';
 					} else {
-						
 						line = line
-							.replace(/[<>]/, function(m) { return m == '<' ? '&lt;' : '&gt;'; })
-							.replace(/&(#?[\w\d]+)?;/, function(m) { return m.length > 1 ? m : '&amp;'; })
+							.replace(/[<>]/g, function(m) { return m == '<' ? '&lt;' : '&gt;'; })
+							.replace(/&(#?[\w\d]+)?;/g, function(m) { return m.length > 1 ? m : '&amp;'; })
 							.replace(/`(.*?)`/g, '<code>$1</code>')
-							.replace(/`(.+?)\b/g, '<code>$1</code>');
-						
+							.replace(/`(.+?)\b/g, '<code>$1</code>')
+							.replace(/#([$_a-z][$_\w]*=?)/ig, '<a href="#$1">$1</a>')
+							.replace(/\[\[([$_A-Z][$_\w]*)\]\](\w*)/g, function(m, identifier, suffix) {
+								var cls = t.doc.root.classes.getByName(identifier);
+								if(!cls) return '<abbr title="Not found">' + identifier + suffix + '</abbr>';
+								return '<a href="../' + cls.module.name + '/' + cls.name + '.html"'
+									+ ' title="' + cls.module.name + '::' + cls.name + '">' + cls.name + suffix + '</a>';
+							});
 						if((match = /^(\s+)\*\s*/(line))) {
 							var indent = match[1];
 							while( !line.startsWith(list.join('')) ) {
@@ -295,6 +301,7 @@ Node.prototype = {
 			}
 			while(list.pop() !== undefined) html += '</ul>';
 			html += '</p>';
+			html = html.replace(/<p>\s*<\/p>/, '');
 		}
 		return html;
 	}
@@ -336,7 +343,8 @@ function toS(o, type, indent, depth) {
 }
 
 function Doc() {
-	var t = new Node(TOK.DOC);
+	var t = new Node(null, TOK.DOC);
+	t.doc = t;
 	t.modules = [];
 	return t;
 }
@@ -363,6 +371,10 @@ Tokenizer.prototype = {
 	enter: function(node) {
 		this.top().push(node);
 		this.stack.push(node);
+	},
+	
+	doc: function() {
+		return this.stack[0];
 	},
 	
 	top: function() {
@@ -412,18 +424,18 @@ Tokenizer.prototype = {
 			
 			
 			if (this.top().type !== TOK.SOURCE && (match = /^Description:?\s*$/(line))) {
-				var t = new Node(TOK.DESCRIPTION);
+				var t = new Node(this.doc(), TOK.DESCRIPTION);
 				this.expectingBlock = true;
 				if( this.top().type === TOK.CLASS ) {
 					this.top().description = t;
 				}
 				this.enter(t);
-			} else if (this.top().type == TOK.CLASS && (match = /^[$_\w][$_\w\d]*\.[$_\w][$_\w\d]*|^[$_\w][$_\w\d]*\[(.*?)\]/(line))) {
+			} else if (this.top().type == TOK.CLASS && (match = /^[$_a-z][$_\w]*\.[$_a-z][$_\w]*|^[$_a-z][$_\w]*\[(.*?)\]/(line))) {
 				this.expectingBlock = true;
 				if( this.last().type === TOK.PROP && !this.last().length )
 					var t = this.last();
 				else {
-					var t = new Node(TOK.PROP);
+					var t = new Node(this.doc(), TOK.PROP);
 					this.top().props = this.top().props || [];
 					this.top().props.push(t);
 				}
@@ -433,19 +445,25 @@ Tokenizer.prototype = {
 				t.calls.push(c);
 				
 				c.type =
-					/^[$_\w][$_\w\d]*\.[$_\w][$_\w\d]*\((.*?)\)/(line) ? 'func' :
-					/^[$_\w][$_\w\d]*\[/(line) ? '[]' :
-					'property';
-				c.name = c.type == '[]' ? '[]' : /^[$_\w][$_\w\d]*\.([$_\w][$_\w\d]*)/(line)[1];
+					/^[$_a-z][$_\w]*\.[$_a-z][$_\w]*\((.*?)\)/(line) ? 'func' :
+					/^[$_a-z][$_\w]*\[/(line) ? '[]' :
+					/^[$_a-z][$_\w]*\.[$_a-z][$_\w]*\s*=\s*(.*)$/(line) ? 'set' :
+					'get';
+				c.id = c.name = c.type == '[]' ? '[]' : /^[$_a-z][$_\w]*\.([$_a-z][$_\w]*)/(line)[1];
 				
-				c.on = /^[$_\w][$_\w\d]*/(line)[0];
+				c.on = /^[$_a-z][$_\w]*/(line)[0];
 				c.instanced = c.on !== this.currentClass.name;
 				
 				if (c.type == '[]') {
-					match = /^[$_\w][$_\w\d]*\[(.*?)\]/(line);
+					match = /^[$_a-z][$_\w]*\[(.*?)\]/(line);
 					t.addArgument(match[1]);
+					t.id = '[]';
+				} else if (c.type == 'set') {
+					match = /^[$_a-z][$_\w]*\.[$_a-z][$_\w]*\s*=\s*(.*?);?$/(line)
+					t.addArgument(match[1]);
+					t.id += '=';
 				} else if (c.type == 'func') {
-					match = /^[$_\w][$_\w\d]*\.[$_\w][$_\w\d]*\(\s*(.*)\s*\)/(line);
+					match = /^[$_a-z][$_\w]*\.[$_a-z][$_\w]*\(\s*(.*)\s*\)/(line);
 					
 					var k, tk = match[1].scan(/\w+|\.{3}|,|=(?:[^\[\],]*)|\[|\]/g);
 					var useAfter, after;
@@ -521,7 +539,7 @@ Tokenizer.prototype = {
 				this.stack.pop();
 				this.allowDeindent = true;
 			} else if ((match = /^--\s*(.*)$/(line))) {
-				var t = new Node(TOK.SOURCE);
+				var t = new Node(this.doc(), TOK.SOURCE);
 				t.header = match[1];
 				this.enter(t);
 				this.allowDeindent = false;
@@ -529,7 +547,7 @@ Tokenizer.prototype = {
 				if( /^\s+/(line) && this.afterAtNote ) {
 					this.at(undefined, /^\s+(.*)$/(line)[1]);
 				} else {
-					var t = new Node(TOK.LINE);
+					var t = new Node(this.doc(), TOK.LINE);
 					t.text = line;
 					this.top().push(t);
 					this.afterAtNote = false;
@@ -556,7 +574,7 @@ Tokenizer.prototype = {
 				if( this.top().type === TOK.MODULE ) this.stack.pop();
 				var top = this.top();
 				if( top.type !== TOK.DOC ) break;
-				var mod = new Node(TOK.MODULE);
+				var mod = new Node(this.doc(), TOK.MODULE);
 				mod.name = value;
 				mod.classes = [];
 				top.modules.push(mod);
@@ -566,7 +584,7 @@ Tokenizer.prototype = {
 			case 'class':
 				if( this.top().type === TOK.CLASS ) this.stack.pop();
 				if( this.top().type === TOK.DOC ) {
-					var m = new Node(TOK.MODULE);
+					var m = new Node(this.doc(), TOK.MODULE);
 					m.name = '_nil';
 					m.classes = [];
 					this.enter(m);
@@ -574,7 +592,7 @@ Tokenizer.prototype = {
 				}
 				var top = this.top();
 				if( top.type !== TOK.MODULE ) break;
-				var cls = new Node(TOK.CLASS);
+				var cls = new Node(this.doc(), TOK.CLASS);
 				cls.module = this.currentModule;
 				cls.name = value;
 				top.classes.push(cls);
@@ -588,16 +606,21 @@ Tokenizer.prototype = {
 			case 'readonly':
 			//case 'name': 
 			case 'nameTBD':
-				this.top()[at] = value;
+				top[at] = value;
 			case 'alias':
 			case 'debate':
 			case 'TBD':
-			//case 'param':
 				if( top[at] && top[at].length && append )
 					top[at][top[at].length] += '\n' + value;
 				else if( top[at] instanceof Array )
 					top[at].push(value);
 				else top[at] = [value];
+				break;
+			case 'param':
+				var m = /^([$_a-z][$_\w]*)\s+(.*)$/(value);
+				if(m) {
+					if( top.args[m[1]] ) top.args[m[1]].text += m[2];
+				}
 				break;
 			}
 			break;
@@ -625,8 +648,8 @@ Tokenizer.prototype = {
 };
 
 var config = {
-	outputDir: './', // slash ending directory path to compile api docs into
-	root: '',        // web root to find styles and scripts
+	outputDir: './out/', // slash ending directory path to compile api docs into
+//	root: '',        // web root to find styles and scripts
 	inputFiles: []
 };
 
@@ -637,9 +660,9 @@ while( arg = args.shift() ) {
 	case '-o':
 		config.outputDir = args.shift();
 		break;
-	case '-w':
-		config.root = args.shift();
-		break;
+//	case '-w':
+//		config.root = args.shift();
+//		break;
 	default:
 		config.inputFiles.push(arg);
 		break;
@@ -651,6 +674,12 @@ var docs = [];
 var fs = require('file');
 var File = fs.File;
 
+if( !fs.isDirectory(config.outputDir) ) fs.mkdirs(config.outputDir);
+
+//fs.copy('./api2.css', config.outputDir);
+//fs.copy('./api2.js', config.outputDir);
+//fs.copyTree('./prettify/', config.outputDir);
+
 for ( var input = config.inputFiles.slice(), file; file = input.shift(); ) {
 	print("Reading " + file);
 	var src = (new File(file, 'r')).read().toString();
@@ -661,26 +690,81 @@ for ( var input = config.inputFiles.slice(), file; file = input.shift(); ) {
 	print('');
 }
 
+print('Rooting objects...');
+var root = { modules: {}, classes: [] };
+root.classes.getByName = function(ident) {
+	for ( var i = 0; i < this.length; i++ )
+		if( this[i].name === ident )
+			return this[i];
+	return false;
+}
+for ( var d = docs.slice(), doc; doc = d.shift(); ) {
+	print("Doing doc");
+	
+	doc.root = root;
+	for ( var m = doc.modules.slice(); mod = m.shift(); ) {
+		print("> Doing module " + mod.name);
+		
+		mod.root = root;
+		root.modules[mod.name] = mod;
+		for ( var c = mod.classes.slice(); cls = c.shift(); ) {
+			print(">> Doing class " + cls.name);
+			cls.root = root;
+			root.classes.push(cls);
+		}
+	}
+}
+print('');
+
 print('Combining JSON...');
 var modules = {};
+var modulesList = [];
+var classesList = [];
 for ( var d = docs.slice(), doc; doc = d.shift(); ) {
 	for ( var m = doc.modules.slice(); mod = m.shift(); ) {
-		var mob = modules[mod.name] || { name: mod.name, classes: {} };
+		var mob = modules[mod.name] || { module: mod.name, classes: {} };
 		
 		print("Doing module " + mod.name);
 		for ( var c = mod.classes.slice(); cls = c.shift(); ) {
 			print("> Doing class " + cls.name);
 			mob.classes[cls.name] = cls.getJSON();
+			classesList.push(mob.classes[cls.name]);
 		}
 		modules[mod.name] = mob;
 	}
 }
+for ( var module in modules )
+	modulesList.push(modules[module]);
 print('');
 
 print('Grabbing template...');
-var jtpl = require('./json-template').Template;
-var tpl = new jtpl(new File('ApiTemplate.html', 'r').read().toString());
+var tpl = {};
+try {
+	var jtpl = require('./json-template').Template;
+	jtpl.prototype.writeTo = function(path, json) {
+		print("Rendering template...");
+		try {
+			var output = this.expand(json);
+		} catch ( e ) {
+			print( e.name + ': ' + e.message );
+			return false;
+		}
+		print("Writing to " + path);
+		(new File(path, 'w')).write(output);
+		return true;
+	};
+	
+	tpl.indexTemplate = new jtpl(new File('templates/index.html', 'r').read().toString());
+	tpl.moduleTemplate = new jtpl(new File('templates/module.html', 'r').read().toString());
+	tpl.classTemplate = new jtpl(new File('templates/class.html', 'r').read().toString());
+} catch ( e ) {
+	print( e.name + ': ' + e.message );
+	return;
+}
 print('');
+
+print('Rendering index...');
+tpl.indexTemplate.writeTo(config.outputDir + '/index.html', { modules: modulesList, classes: classesList });
 
 print('Outputting modules...');
 for ( var module in modules ) {
@@ -690,19 +774,20 @@ for ( var module in modules ) {
 	print("Path: " + modulePath);
 	if( !fs.isDirectory(modulePath) ) fs.mkdirs(modulePath);
 	
+	var mob = {};
+	for ( var k in mod ) if ( k !== 'classes' ) mob[k] = mod[k];
+	mob.classes = [];
+	for ( var c in mod.classes ) {
+		mob.classes.push( mod.classes[c] );
+	}
+	
+	tpl.moduleTemplate.writeTo(modulePath + 'index.html', mob);
+	
 	for ( var className in mod.classes ) {
 		var	cls = mod.classes[className];
 		var classPath = modulePath + className + '.html';
-		print("Rendering template...");
-		try {
-			var output = tpl.expand(cls);
-		} catch ( e ) {
-			print( e.name + ': ' + e.message );
-		}
-		print("Writing to " + classPath);
-		(new File(classPath, 'w')).write(output);
+		tpl.classTemplate.writeTo(classPath, cls);
 	}
-	
 	print('');
 }
 

@@ -271,7 +271,7 @@ Node.prototype = {
 							.replace(/&(#?[\w\d]+)?;/g, function(m) { return m.length > 1 ? m : '&amp;'; })
 							.replace(/`(.*?)`/g, '<code>$1</code>')
 							.replace(/`(.+?)\b/g, '<code>$1</code>')
-							.replace(/#([$_a-z][$_\w]*=?)/ig, '<a href="#$1">$1</a>')
+							.replace(/#([$_a-zA-Z][$_\w]*=?)/ig, '<a href="#$1">$1</a>')
 							.replace(/\[\[([$_A-Z][$_\w]*)\]\](\w*)/g, function(m, identifier, suffix) {
 								var cls = t.doc.root.classes.getByName(identifier);
 								if(!cls) return '<abbr title="Not found">' + identifier + suffix + '</abbr>';
@@ -430,7 +430,7 @@ Tokenizer.prototype = {
 					this.top().description = t;
 				}
 				this.enter(t);
-			} else if (this.top().type == TOK.CLASS && (match = /^[$_a-z][$_\w]*\.[$_a-z][$_\w]*|^[$_a-z][$_\w]*\[(.*?)\]/(line))) {
+			} else if (this.top().type == TOK.CLASS && (match = /^[$_a-zA-Z][$_\w]*\.[$_a-zA-Z][$_\w]*|^[$_a-zA-Z][$_\w]*\[(.*?)\]/(line))) {
 				this.expectingBlock = true;
 				if( this.last().type === TOK.PROP && !this.last().length )
 					var t = this.last();
@@ -445,25 +445,25 @@ Tokenizer.prototype = {
 				t.calls.push(c);
 				
 				c.type =
-					/^[$_a-z][$_\w]*\.[$_a-z][$_\w]*\((.*?)\)/(line) ? 'func' :
-					/^[$_a-z][$_\w]*\[/(line) ? '[]' :
-					/^[$_a-z][$_\w]*\.[$_a-z][$_\w]*\s*=\s*(.*)$/(line) ? 'set' :
+					/^[$_a-zA-Z][$_\w]*\.[$_a-zA-Z][$_\w]*\((.*?)\)/(line) ? 'func' :
+					/^[$_a-zA-Z][$_\w]*\[/(line) ? '[]' :
+					/^[$_a-zA-Z][$_\w]*\.[$_a-zA-Z][$_\w]*\s*=\s*(.*)$/(line) ? 'set' :
 					'get';
-				c.id = c.name = c.type == '[]' ? '[]' : /^[$_a-z][$_\w]*\.([$_a-z][$_\w]*)/(line)[1];
+				c.id = c.name = c.type == '[]' ? '[]' : /^[$_a-zA-Z][$_\w]*\.([$_a-zA-Z][$_\w]*)/(line)[1];
 				
-				c.on = /^[$_a-z][$_\w]*/(line)[0];
+				c.on = /^[$_a-zA-Z][$_\w]*/(line)[0];
 				c.instanced = c.on !== this.currentClass.name;
 				
 				if (c.type == '[]') {
-					match = /^[$_a-z][$_\w]*\[(.*?)\]/(line);
+					match = /^[$_a-zA-Z][$_\w]*\[(.*?)\]/(line);
 					t.addArgument(match[1]);
 					t.id = '[]';
 				} else if (c.type == 'set') {
-					match = /^[$_a-z][$_\w]*\.[$_a-z][$_\w]*\s*=\s*(.*?);?$/(line)
+					match = /^[$_a-zA-Z][$_\w]*\.[$_a-zA-Z][$_\w]*\s*=\s*(.*?);?$/(line)
 					t.addArgument(match[1]);
 					t.id += '=';
 				} else if (c.type == 'func') {
-					match = /^[$_a-z][$_\w]*\.[$_a-z][$_\w]*\(\s*(.*)\s*\)/(line);
+					match = /^[$_a-zA-Z][$_\w]*\.[$_a-zA-Z][$_\w]*\(\s*(.*)\s*\)/(line);
 					
 					var k, tk = match[1].scan(/\w+|\.{3}|,|=(?:[^\[\],]*)|\[|\]/g);
 					var useAfter, after;
@@ -617,7 +617,7 @@ Tokenizer.prototype = {
 				else top[at] = [value];
 				break;
 			case 'param':
-				var m = /^([$_a-z][$_\w]*)\s+(.*)$/(value);
+				var m = /^([$_a-zA-Z][$_\w]*)\s+(.*)$/(value);
 				if(m) {
 					if( top.args[m[1]] ) top.args[m[1]].text += m[2];
 				}

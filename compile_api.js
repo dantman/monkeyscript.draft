@@ -200,32 +200,52 @@ Node.prototype = {
 					for ( var z = 0; z < prop.calls.length; z++ ) {
 						var call = prop.calls[z];
 						var q = {};
-						var k, a = 'id,name,on,instanced,type'.split(',');
+						var k, a = 'id,name,on,instanced,construct,namedProp,func,set'.split(',');
 						while( k = a.shift() ) q[k] = call[k];
-						q.callname = q.on;
-						if(q.typw !== '[]') q.callname += '.' + q.name;
-						if(q.type === '[]') q.callname += '[]';
-						if(q.type === 'func') q.callname += '()';
-						if(q.type === 'set') q.callname += '=';
-						q.callhtml = '<span class="' + ( q.instanced ? 'pln' : 'typ' ) + '">' + q.on + '</span>';
-						if(q.type !== '[]') q.callhtml += '<span class="pun dot">.</span>' + q.name;
-						if(q.type === '[]') q.callhtml += '<span class="pun bracket">[</span>';
-						if(q.type === 'func') q.callhtml += '<span class="pun paren">(</span>';
-						if(q.type === 'set') q.callhtml += ' <span class="pun eq">=</span> ';
-						if(q.type !== 'get')
+						q.callname = '';
+						if(q.construct) q.callname += 'new ';
+						if(q.on) q.callname += q.on + '.';
+						if(q.name) q.callname += q.name;
+						if(q.namedProp) q.callname += '[]';
+						if(q.func) q.callname += '()';
+						if(q.set) q.callname += '=';
+						q.callhtml = '';
+						if(q.construct) q.callhtml += '<span class="kwd new">new</span> ';
+						if(q.on) q.callhtml += '<span class="' + ( q.instanced ? 'pln' : 'typ' ) + '">' + q.on + '</span><span class="pun dot">.</span>';
+						if(q.name) q.callhtml += '<span class="pln">' + q.name + '</span>';
+						if(q.namedProp) q.callhtml += '<span class="pun bracket">[</span>';
+						if(q.func) q.callhtml += '<span class="pun paren">(</span>';
+						if(q.set) q.callhtml += ' <span class="pun eq">=</span> ';
+						//if(q.type !== 'get')
 							for ( var a = 0; a<call.arguments.length; a++ ) {
 								var arg = call.arguments[a];
 								if(a>0) q.callhtml += '<span class="pun comma">,</span> ';
 								if(arg.optionalBlock.open) q.callhtml += '<span class="pun optbracket">[</span>';
-								q.callhtml += '<span class="pln' + ( arg.optional ? ' optional' : '' ) + '">';
-								q.callhtml += arg.name === '...' ? '&hellip;' : arg.name;
-								q.callhtml += '</span>';
+								var className = ['pln'];
+								if( arg.optional ) className.push('optional');
+								var ident = arg.name;
+								switch(arg.name) {
+								case '...':
+									className.shift();
+									ident = '&hellip;';
+									break;
+								case 'true':
+								case 'false':
+								case 'undefined':
+								case 'null':
+								case 'Infinity':
+								case 'NaN':
+									className.shift();
+									className.unshift('kwd');
+									break;
+								}
+								q.callhtml += '<span class="' + className.join(' ') + '">' + ident + '</span>';
 								if(arg.defaultValue) q.callhtml += '<span class="pun eq">=</span>' + arg.defaultValue;
 								if(arg.optionalBlock.close) q.callhtml += '<span class="pun optbracket">]</span>';
 							}
-						if(q.type === 'func') q.callhtml += '<span class="pun paren">)</span>';
-						if(q.type === '[]') q.callhtml += '<span class="pun bracket">]</span>';
-						q.callhtml += ';'
+						if(q.func) q.callhtml += '<span class="pun paren">)</span>';
+						if(q.namedProp) q.callhtml += '<span class="pun bracket">]</span>';
+						q.callhtml += '<span class="pun semi">;</span>';
 						p.calls.push(q);
 					}
 			
@@ -387,6 +407,8 @@ Tokenizer.prototype = {
 	},
 	
 	run: function() {
+		var propRegex = /^(new\s+)?(?:([$_a-zA-Z][$_a-zA-Z0-9]*)\.)?([$_a-zA-Z][$_a-zA-Z0-9]*)(?:\[(.*?)\])?(?:\((.*?)\))?(?:\s*=\s*(.*?))?;?$/;
+		
 		var match, lines = this.source.split(/\r\n|\r|\n/);
 		this.line = 0;
 		this.stack = [Doc()];
@@ -430,7 +452,7 @@ Tokenizer.prototype = {
 					this.top().description = t;
 				}
 				this.enter(t);
-			} else if (this.top().type == TOK.CLASS && (match = /^[$_a-zA-Z][$_\w]*\.[$_a-zA-Z][$_\w]*|^[$_a-zA-Z][$_\w]*\[(.*?)\]/(line))) {
+			} else if (this.top().type == TOK.CLASS && (match = propRegex(line))) {
 				this.expectingBlock = true;
 				if( this.last().type === TOK.PROP && !this.last().length )
 					var t = this.last();
@@ -444,17 +466,40 @@ Tokenizer.prototype = {
 				var c = { arguments: [] };
 				t.calls.push(c);
 				
-				c.type =
-					/^[$_a-zA-Z][$_\w]*\.[$_a-zA-Z][$_\w]*\((.*?)\)/(line) ? 'func' :
+				c.construct = !!match[1];
+				c.on = match[2];
+				c.name = match[3];
+				c.namedProp = match[4] !== undefined;
+				c.func = match[5] !== undefined;
+				c.set = match[6] !== undefined;
+				c.instanced = c.on !== this.currentClass.name;
+				
+				c.id = c.name;
+				if(c.namedProp) {
+					t.addArgument(match[4]);
+					c.id = '[]';
+				}
+				if(c.set) {
+					t.addArgument(match[6]);
+					c.id += '=';
+				}
+				if(c.construct) c.id = 'new' + c.id;
+				
+				/*c.type =
+					/^(?:new )?[$_a-zA-Z][$_\w]*(?:\.[$_a-zA-Z][$_\w]*)?\((.*?)\)/(line) ? 'func' :
 					/^[$_a-zA-Z][$_\w]*\[/(line) ? '[]' :
 					/^[$_a-zA-Z][$_\w]*\.[$_a-zA-Z][$_\w]*\s*=\s*(.*)$/(line) ? 'set' :
 					'get';
-				c.id = c.name = c.type == '[]' ? '[]' : /^[$_a-zA-Z][$_\w]*\.([$_a-zA-Z][$_\w]*)/(line)[1];
+				c.construct = /^new /.test(line);
+				c.id = c.name =
+					c.type == '[]' ? '[]' :
+					c.construct ? 'new' :
+					/^[$_a-zA-Z][$_\w]*\.([$_a-zA-Z][$_\w]*)/(line)[1];
 				
-				c.on = /^[$_a-zA-Z][$_\w]*/(line)[0];
-				c.instanced = c.on !== this.currentClass.name;
+				c.on = /^[$_a-zA-Z][$_\w]* /(line)[0];
+				c.instanced = c.on !== this.currentClass.name;*/
 				
-				if (c.type == '[]') {
+				/*if (c.type == '[]') {
 					match = /^[$_a-zA-Z][$_\w]*\[(.*?)\]/(line);
 					t.addArgument(match[1]);
 					t.id = '[]';
@@ -462,10 +507,11 @@ Tokenizer.prototype = {
 					match = /^[$_a-zA-Z][$_\w]*\.[$_a-zA-Z][$_\w]*\s*=\s*(.*?);?$/(line)
 					t.addArgument(match[1]);
 					t.id += '=';
-				} else if (c.type == 'func') {
-					match = /^[$_a-zA-Z][$_\w]*\.[$_a-zA-Z][$_\w]*\(\s*(.*)\s*\)/(line);
+				} else if (c.type == 'func') {*/
+				if(c.func) {
+					//match = /^(?:new )?[$_a-zA-Z][$_\w]*(?:\.[$_a-zA-Z][$_\w]*)?\(\s*(.*)\s*\)/(line);
 					
-					var k, tk = match[1].scan(/\w+|\.{3}|,|=(?:[^\[\],]*)|\[|\]/g);
+					var k, tk = match[5].scan(/\w+|\.{3}|,|=(?:[^\[\],]*)|\[|\]/g);
 					var useAfter, after;
 					var ident, defaultValue, openOptional, closeOptional;
 					var lastArg;

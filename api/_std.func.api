@@ -10,7 +10,6 @@ globalExec(script);
 
 
 include(script);
-includeOnce(script);
-	@debate includeOnce or require? include.once?
+include.once(script);
 
 

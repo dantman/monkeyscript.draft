@@ -627,6 +627,8 @@ Tokenizer.prototype = {
 				this.enter(mod);
 				this.currentModule = mod;
 				break;
+			case 'func':
+				value = '.func';
 			case 'class':
 				if( this.top().type === TOK.CLASS ) this.stack.pop();
 				if( this.top().type === TOK.DOC ) {

@@ -1,0 +1,21 @@
+@module io
+@class FileArray
+
+fl.cat();
+	Returns the contents of all the files in the list concatenated together.
+
+fl.remove();
+	Delete all the files in the file list.
+
+fl.touch();
+	Touch all the files in the list so that they all have updated timestamps.
+
+fl.rename(regex, replacement);
+	Rename all the files inside of the file list based on a pattern. .rename()
+	is similar to string.replace(), the regex is like a `regex` pattern to .replace()
+	and `replacement` the string replacement for that pattern.
+	-- Example
+	// Rename all .htm files in the current working directory to end with .html
+	Directory('.').glob('*.htm').rename(/.htm$/, '.html');
+	----
+

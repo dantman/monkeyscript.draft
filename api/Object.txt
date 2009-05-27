@@ -1,0 +1,20 @@
+@module _std
+@class Object
+
+Object.__seal__(obj, deep=false);
+	@param obj  The object to seal
+	@param deep Whether or not to seal the object deeply
+	Seal an entire object from having it's properties set or deleted. If `deep`
+	is set then seal will recursively seal all non-null objects within the object.
+
+Object.__sealProperty__(obj, name);
+	@param obj  The object to seal the property on
+	@param name The name of the property to seal
+	Seal a single property named `name` on `obj` so it may not be set or deleted.
+	This basically sets readonly and permanent on the property.
+
+Object.__hideProperty__(obj, name);
+	@param obj The object to hide the property on
+	@param name The name of the property to hide
+	Hide the property named `name` on `obj` from enumeration in a for..in loop.
+

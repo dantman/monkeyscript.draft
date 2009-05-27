@@ -291,7 +291,7 @@ Node.prototype = {
 							.replace(/&(#?[\w\d]+)?;/g, function(m) { return m.length > 1 ? m : '&amp;'; })
 							.replace(/`(.*?)`/g, '<code>$1</code>')
 							.replace(/`(.+?)\b/g, '<code>$1</code>')
-							.replace(/#([$_a-zA-Z][$_\w]*=?)/ig, '<a href="#$1">$1</a>')
+							.replace(/#([$_a-zA-Z][$_\w]*)(\(\))?(=?)/ig, '<a href="#$1$3">$1$2$3</a>')
 							.replace(/\[\[([$_A-Z][$_\w]*)\]\](\w*)/g, function(m, identifier, suffix) {
 								var cls = t.doc.root.classes.getByName(identifier);
 								if(!cls) return '<abbr title="Not found">' + identifier + suffix + '</abbr>';

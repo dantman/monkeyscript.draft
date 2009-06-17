@@ -13,6 +13,13 @@ Description
 	the actual io system. The end programmer should not care whether the stream
 	is the Stream class itself or a hidden subclass.
 
+stream.universalLineEnding;
+	A regex that matches all the common types of line endings which is used when
+	splitting stuff up by lines.
+
+stream.systemLineEnding;
+	A string with the system's line ending which is used when joining lines together.
+
 stream.isOpen;
 	A boolean indicating whether the stream is still open or not.
 
@@ -24,10 +31,18 @@ stream.encoding;
 	The encoding used for the stream. If the stream is binary then 'binary' is
 	returned as the encoding.
 
+stream.isOpen = false;
 stream.close();
 	Close the handle for the stream. This is normally done automatically when
 	the stream is garbage collected but you are free to close it before that point
 	on your own if you believe another part a program may be keeping it around.
+
+stream.isReadable;
+stream.isWritable;
+	Booleans indicating if the stream can currently be read from or written to without blocking.
+
+stream.position = ???;
+stream.seek(???);
 
 stream.read();
 stream.yank();
@@ -63,4 +78,12 @@ stream.shove(data, [length=Infinity]);
 	will block until all of data is written and return true. `limit` may be used
 	to limit the number of bytes from data that may actually be written.
 
+stream.readTo(end, [max=Infinity]);
+	@param end A string, blob, or regex that will match the end token
+	@param max An optional limit to how far to read
+
+stream.readLine();
+	Read a line in from the stream.
+
+stream.writeLine(line);
 

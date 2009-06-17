@@ -10,8 +10,29 @@ Description
 	 * The classic `for ( let i = 0; i < arr.length; i++ ) arr[i];` can be used
 	 * Another posibility is `for ( let item, list = arr.slice(); item = list.shift(); ) item;
 
+arr[index];
+arr.item(index);
+	@param index The index number of the array item
+	Return the item at the specified `index`.
+
 arr.length;
 	The number of items inside of the array.
+
+arr.has(item);
+	@param item The otem to check for.
+	Check and see if `item` can be found inside of `arr`.
+
+arr.remove(item, [max=Infinity]);
+	@param item The item to remove
+	@param max  An optional limit to how many to remove
+	Remove items from `arr` which match `item`. By default this will remove
+	all matching items and return the number of items remove. You may optionally
+	specify a `max` limit to how many may be removed.
+
+arr.clean([strong=false]);
+	@param strong Also clean out empty strings
+	Return an array with `undefined` and `null` items removed. If you pass true
+	to the function it will also remove empty strings.
 
 arr.pop();
 	Pop an item off the end of an array. The item is returned as the return value.
@@ -68,5 +89,8 @@ arr.flat();
 	> [['foo', 'bar'], ['bing', 'bang', 'baz']].flat()
 	['foo', 'bar', 'bing', 'bang', 'baz']
 	----
+
+arr.shuffle();
+	Resort the array to have a random order.
 
 

@@ -14,7 +14,22 @@ new Path(pathString);
 
 Path.newPathSystem(options);
 	Creates a new path system like [[FilePath]] or [[URLPath]] based on the
-	arguments passed to it.
+	options passed to it.
+	
+	The options array may contain keys like listSeparator, base, etc... which
+	will be used to define new constants for the created path system.
+
+Path.listSeparator;
+	The token used when splitting and joining path lists like the PATH env var.
+	On Path itself this is always ':', subsystems may define their own.
+
+Path.pathSeparator;
+	The token or regex used when joining paths together.
+	On Path itself this is always '/', subsystems may define their own.
+
+Path.pathSplitter;
+	The token or regex used when splitting paths appart.
+	On Path itself this is always '/', subsystems may define their own.
 
 Path.base;
 	A Path instance which forms the base path. The base path is used whenever

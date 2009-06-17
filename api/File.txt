@@ -114,6 +114,17 @@ file.isWritable;
 	Check the file for existance, readability, or writability. readability and
 	writability imply existance.
 
+file.contents;
+file.contents = content;
+	@param content The content to write to the file.
+	Quickly open a file and read or modify it's contents.
+	
+	`file.contents` will return undefined for a nonexistant file, and a String
+	decoded from the system encoding when returning actual contents.
+	
+	`file.contents = content` will accept undefined to delete the file, a String
+	or a Blob to save to the file as content.
+
 file.isFile;
 file.isDirectory;
 	Check if the file is a file, or is a directory. `!file.isFile && !file.isDirectory` implies other.
@@ -220,7 +231,7 @@ file.copyTo(path);
 	@alias cp
 	@param path The new path for the file this may be a string path, a [[FilePath]], [[File]], or [[Directory]] instance.
 	Copy the contents of this file to another path. `path` shares the same semantics
-	as with #move cept it copies except moves.
+	as with #move except it copies instead of moves.
 
 file.copyFrom(path);
 	@param path The path to copy the file from, this may be a string path, a [[FilePath]], [[File]], or [[Directory]] instance.

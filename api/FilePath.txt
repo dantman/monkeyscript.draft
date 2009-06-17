@@ -6,6 +6,18 @@ Description
 	FilePath is class for the handling of paths on the filesystem. It is a
 	sub path system derived from [[Path]].
 
+FilePath.listSeparator;
+	The token used when splitting and joining path lists like the PATH env var.
+	On FilePath this is OS dpendent and usually ':' or ';' on Windows.
+
+FilePath.pathSeparator;
+	The token or regex used when joining paths together.
+	On FilePath itself this is OS dpendent and normally '/' or '\\' on Windows.
+
+FilePath.pathSplitter;
+	The token or regex used when splitting paths appart.
+	On FilePath itself this is always /[^\/\\]/.
+
 FilePath.base;
 FilePath.cwd;
 	A FilePath instance that forms the base path. This path aliases as the

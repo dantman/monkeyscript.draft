@@ -1,0 +1,6 @@
+{
+	"id": "me",
+	"name": "me",
+	"namespace": false,
+	"js": "me.js"
+}

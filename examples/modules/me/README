@@ -1,0 +1,3 @@
+This example details a basic module. The modules name is "a" and can be 
+referenced using `banana('a');` inside of code. It only has a single 
+a.js file to be executed.

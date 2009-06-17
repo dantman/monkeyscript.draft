@@ -114,6 +114,10 @@ file.isWritable;
 	Check the file for existance, readability, or writability. readability and
 	writability imply existance.
 
+file.isFile;
+file.isDirectory;
+	Check if the file is a file, or is a directory. `!file.isFile && !file.isDirectory` implies other.
+
 file.exists = false;
 file.content = undefined;
 file.remove();

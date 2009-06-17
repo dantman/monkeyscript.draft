@@ -9,7 +9,7 @@ var content = File.open('./foo.txt', 'r').read();
 // Block open() style
 var content;
 File.open('./foo.txt', 'r', function(s) {
-	content = s.read()
+	content = s.read();
 });
 
 // Long separate variables (ie: For when doing a lot of stuff on the file)

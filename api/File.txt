@@ -24,23 +24,27 @@ Description
 	the current working directory `f` will still refer to the same file, and not
 	a file inside the new current working directory.
 
-File.open(path, flags, [encoding=File.systemEncoding], [mode], [block]);
-file.open(flags, [encoding=File.systemEncoding], [mode], [block]);
-	@param flags 
-	@param mode  
-	@param block A block function to call in the context of the opened stream
+File.open(path, openFlags, [encoding=File.systemEncoding], [access], [block]);
+File.open(openFlags, options, [block]);
+file.open(openFlags, [encoding=File.systemEncoding], [access], [block]);
+file.open(options, [block]);
+	@param openFlags A string or bitfield indicating what mode to open the file in 
+	@param access    An octal or object indicating permissions to open a file with if it is created (only for *nix systems)
+	@param encoding  The type of encoding to open the file with
+	@param options   An object with key/value paris used in place of the openFlags, encoding, and access params
+	@param block     A block function to call in the context of the opened stream
 	Open a [[Stream]] for reading/writing to/from the file.
-	 * `flags` is a bitfield of flags constants or a string with rwa+tb flags indicating how to open the file.
-	 * `encoding` is an encoding to use when reading the file.
-	 * `mode` is an optional set of permissions to create the file with on *nix platforms if creating the file when opening it ('x' and File.NOCREATE are not specified).
-	 * If 'b' is used in flags, the flags bitfield contains File.BINARY, or `encoding.lc === 'binary'` then the file is opened for binary reading (.read returns blobs)
-	 * If 't' is used in flags, or a 'b' is absent from the string, File.BINARY is not used, and `encoding.lc !== 'binary'` then the file is opened for text reading (.read returns strings)
-	 * If 'r' is used in flags, or File.READ is used in the bitfield the file is opened for reading.
-	 * If 'w' is used in flags, or File.WRITE is used in the bitfield the file is opened for writing.
-	 * If 'x' is used in flags, or File.NOCREATE is used in the bitfield the file is only opened if the file does not exist. These imply 'w' and File.WRITE;
-	 * If 'a' is used in flags, or File.APPEND is used writing is always done from the end of the file. These imply 'w' and File.WRITE;
-	 * If '+' is used in flags, or File.NOTRUNCATE is used in the bitfield when opened for writing the file is not truncated when opened.
-	 * If 's' is used in flags, or File.SYNC is used in the bitfileld when opened writing to the file will wait for file data and status to be physically updated.
+	 * `openFlags` is a bitfield of flags constants or a string with rwa+tb flags indicating how to open the file.
+	 * `encoding` or an encoding key in the options object is an encoding to use when reading the file.
+	 * `access` or an access key in the options object is an optional set of permissions to create the file with on *nix platforms if creating the file when opening it ('x' and File.NOCREATE are not specified).
+	 * If 'b' is used in flags, the flags bitfield contains File.BINARY, the oprions object has the binary key set and not the text key set (having both set is an error) or `encoding.lc === 'binary'` then the file is opened for binary reading (.read returns blobs)
+	 * If 't' is used in flags, or a 'b' is absent from the string, File.BINARY is not used, the options object does not have the binary key set, and `encoding.lc !== 'binary'` then the file is opened for text reading (.read returns strings)
+	 * If 'r' is used in flags, File.READ is used in the bitfield, or the read key is set in the options object the file is opened for reading.
+	 * If 'w' is used in flags, File.WRITE is used in the bitfield, or the write key is set in the options object the file is opened for writing.
+	 * If 'x' is used in flags, File.NOCREATE is used in the bitfield, or the create key is explicitly set to false the file is only opened if the file does not exist. These imply 'w' and File.WRITE;
+	 * If 'a' is used in flags, File.APPEND is used in the bitfield, or the append key is set in the options object writing is always done from the end of the file. These imply 'w' and File.WRITE;
+	 * If '+' is used in flags, File.NOTRUNCATE is used in the bitfield, or the truncate key is explicitly set to false in the options object when opened for writing the file is not truncated when opened.
+	 * If 's' is used in flags, File.SYNC is used in the bitfileld, or the sync key is set in the options object when opened writing to the file will wait for file data and status to be physically updated.
 	
 	If a `block` function is given then the stream will only be open within the context
 	of that function, once the function finishes then the stream will be closed.
@@ -59,6 +63,48 @@ file.open(flags, [encoding=File.systemEncoding], [mode], [block]);
 		content = s.read();
 	});
 	content; // file's contents
+	----
+	-- Source explanation of mode and options
+	function open() {
+		var args = Array.slice(arguments);
+		var options = {
+			read: false,
+			write: false,
+			encoding: false,
+			access: false,
+			create: true
+			truncate: true,
+			sync: false
+		};
+		var block;
+		if( typeof args[0] === 'string' ) {
+			var mode = args.shift();
+			if( typeof args[0] === 'string' && !/([r-][w-][x-]){3}/.test(args[0]) )
+				var encoding = args.shift();
+			if( ['string', 'number'].has(typeof args[0]) )
+				var access = args.shift();
+			options.encoding = encoding;
+			options.access = access;
+			if( mode.contains('r') ) options.read = true;
+			if( mode.contains('w') ) options.write = true;
+			if( mode.contains('a') ) { options.write = options.append = true; }
+			if( mode.contains('x') ) { options.write = true; options.create = false; }
+			if( mode.contains('+') ) options.truncate = false;
+			if( mode.contains('s') ) options.sync = true;
+			if( mode.contains('b') || encoding === 'binary' ) options.binary = true;
+			if( mode.contains('t') ) options.text = true;
+		} else {
+			Object.merge(options, args.shift());
+		}
+		if( options.append ) options.write = true;
+		if( options.text && options.binary )
+			throw TypeError("Text and Binary modes cannot be enabled at the same time");
+		if( options.binary ) options.encoding = 'binary';
+		if( !options.write ) options.read;
+		if( typeof args[0] === 'function' )
+			block = args.shift();
+		// ... //
+	}
 	----
 
 file.exists;

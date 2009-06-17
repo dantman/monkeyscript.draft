@@ -1,6 +1,9 @@
 @module _std
 @class Object
 
+Description
+	
+
 Object.__seal__(obj, deep=false);
 	@param obj  The object to seal
 	@param deep Whether or not to seal the object deeply
@@ -17,4 +20,61 @@ Object.__hideProperty__(obj, name);
 	@param obj The object to hide the property on
 	@param name The name of the property to hide
 	Hide the property named `name` on `obj` from enumeration in a for..in loop.
+
+Object.merge(obj, objA, ..., [deep]);
+	Merge objects together with right dominance.
+	 * The first object passed will be the object all other keys are merged into, to avoid modifying one you have it pass {} as the first argument and merge onto the empty object.
+	 * The rightmost object with a key is dominant, so if you use `Object.merge({a:'b'}, {a:'c'}, {a:'d'});` in the resulting object a will be 'd'.
+	 * If `deep` is set then this will recurse into objects and merge them as well.
+	-- Source
+	Object.merge = function() {
+		var deep = false;
+		var args = Array.slice(arguments);
+		var o = args.shift();
+		if( typeof args[args.length-1] === 'boolean' ) deep = args.pop();
+		var oo;
+		while ( oo = args.shift() ) {
+			for ( var k in oo )
+				if ( oo.hasOwnProperty( k ) ) {
+					if ( deep && typeof o[k] === 'object' && o[k] !== null && typeof oo[k] === 'object' && oo[k] !== null )
+						Object.merge(o[k], oo[k]);
+					else if ( deep && typeof oo[k] === 'object' && oo[k] !== null )
+						o[k] = new Object(oo[k]);
+					else
+						o[k] = oo[k];
+				}
+		}
+		return o;
+	};
+	----
+
+obj.__count__;
+	A property indiciating the number of properties set on the object.
+
+obj.hasOwnProperty(name);
+	@param name Name of the property to check for
+	Check if the object has a property named `name` directly set inside of it,
+	this does not check the prototype chain like `name in obj` does.
+
+obj.__defineGetter__(name, fn);
+	@param name The name of the property to define
+	@param fn   The callback function to invoke on get
+	Define a getter on the object. The property `name` will be set with a callback
+	function `fn` which will be invoked whenever `obj.name` is asked for and the
+	return value used as the value to return for the property.
+
+obj.__defineSetter__(name, fn);
+	@param name The name of the property to define
+	@param fn   The callback function to invoke on set
+	Define a setter on the object. The property `name` will be set with a callback
+	function `fn` which will be invoked whenever `obj.name = value;` is set
+	the callback will get the value of the expression after the = as a single
+	argument to use when setting data behind the scenes.
+
+obj.watch
+
+obj.unwatch
+
+
+
 

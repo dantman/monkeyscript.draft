@@ -3,6 +3,12 @@
 
 Description
 	The Array is a representation of list data.
+	
+	There are a number of options for iteration over an Array.
+	 * The recomended form `for each ( let item in arr ) { ... }` can be used safely inside MonkeyScrpt.
+	 * Functionally #forEach can be used, as well as the #map, #filter, #reduce, #reduceRight, #every, and #some functions iterate for special purposes.
+	 * The classic `for ( let i = 0; i < arr.length; i++ ) arr[i];` can be used
+	 * Another posibility is `for ( let item, list = arr.slice(); item = list.shift(); ) item;
 
 arr.length;
 	The number of items inside of the array.
@@ -15,6 +21,14 @@ arr.push(item, ...);
 	Pushes one or more items onto the end of an array. The new length of the array
 	is returned as the return value.
 
+arr.pushArray(arr);
+	@param arr An array of items to push onto the array.
+	Pushes all the items inside of an array onto the end of the current array.
+	The length of the array is returned as the return value.
+	-- Source
+	Array.prototype.pushArray = function(arr) this.push.apply( this, arr );
+	----
+
 arr.shift();
 	Shift an item off the start of an array. The item is returned as the return value.
 
@@ -22,6 +36,14 @@ arr.unshift(item, ...);
 	@param item An item to unshift onto the array.
 	Unshifts one or more items onto the start of an array. The new length of the array
 	is returned as the return value.
+
+arr.unshiftArray(arr);
+	@param arr An array of items to unshift onto the array.
+	Unshifts all the items inside of an array onto the start of the current array.
+	The length of the array is returned as the return value.
+	-- Source
+	Array.prototype.unshiftArray = function(arr) this.unshift.apply( this, arr );
+	----
 
 arr.slice
 

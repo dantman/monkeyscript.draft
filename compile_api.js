@@ -103,6 +103,7 @@ var tokens = ["", // Skip 0
 	"DOC", // Documentation root
 	"MODULE", // Module root
 	"CLASS", // Class root
+	"EXAMPLE", // Example root
 	
 	"DESCRIPTION", // Description blocks
 	"PROP", // Property definition block (ie: methods, calls, properties, etc... anything we're documenting)
@@ -175,85 +176,90 @@ Node.prototype = {
 	},*/
 	
 	getJSON: function() {
-		if(this.type !== TOK.CLASS) throw "getJSON is only implemented for Classes";
+		if(this.type !== TOK.CLASS && this.type !== TOK.EXAMPLE) throw "getJSON is only implemented for Classes and Examples";
 		var json = {
 			ROOT: config.root,
 			module: this.module.name || ""
 		};
 		
-		json['class'] = this.name;
-		if( this.description ) json.description = this.description.getHTML();
-		if( this.props && this.props.length ) {
-			json.props = [];
-			for ( var j = 0; j < this.props.length; j++ ) {
-				var prop = this.props[j];
-				var p = {};
-				var k, a = 'readonly,alias,debate,nameTBD,TBD'.split(',');
-				while( k = a.shift() ) p[k] = prop[k];
-				p.arguments = [];
-				for ( k in prop.args ) if( prop.args[k].text ) p.arguments.push( prop.args[k] );
-				p.body = prop.getHTML();
+		if( this.type === TOK.CLASS ) {
+			json['class'] = this.name;
+			if( this.description ) json.description = this.description.getHTML();
+			if( this.props && this.props.length ) {
+				json.props = [];
+				for ( var j = 0; j < this.props.length; j++ ) {
+					var prop = this.props[j];
+					var p = {};
+					var k, a = 'readonly,alias,debate,nameTBD,TBD'.split(',');
+					while( k = a.shift() ) p[k] = prop[k];
+					p.arguments = [];
+					for ( k in prop.args ) if( prop.args[k].text ) p.arguments.push( prop.args[k] );
+					p.body = prop.getHTML();
 				
-				if( prop.calls && prop.calls.length ) {
-					p.calls = [];
+					if( prop.calls && prop.calls.length ) {
+						p.calls = [];
 			
-					for ( var z = 0; z < prop.calls.length; z++ ) {
-						var call = prop.calls[z];
-						var q = {};
-						var k, a = 'id,name,on,instanced,construct,namedProp,func,set'.split(',');
-						while( k = a.shift() ) q[k] = call[k];
-						q.callname = '';
-						if(q.construct) q.callname += 'new ';
-						if(q.on) q.callname += q.on + '.';
-						if(q.name) q.callname += q.name;
-						if(q.namedProp) q.callname += '[]';
-						if(q.func) q.callname += '()';
-						if(q.set) q.callname += '=';
-						q.callhtml = '';
-						if(q.construct) q.callhtml += '<span class="kwd new">new</span> ';
-						if(q.on) q.callhtml += '<span class="' + ( q.instanced ? 'pln' : 'typ' ) + '">' + q.on + '</span><span class="pun dot">.</span>';
-						if(q.name) q.callhtml += '<span class="pln">' + q.name + '</span>';
-						if(q.namedProp) q.callhtml += '<span class="pun bracket">[</span>';
-						if(q.func) q.callhtml += '<span class="pun paren">(</span>';
-						if(q.set) q.callhtml += ' <span class="pun eq">=</span> ';
-						//if(q.type !== 'get')
-							for ( var a = 0; a<call.arguments.length; a++ ) {
-								var arg = call.arguments[a];
-								if(a>0) q.callhtml += '<span class="pun comma">,</span> ';
-								if(arg.optionalBlock.open) q.callhtml += '<span class="pun optbracket">[</span>';
-								var className = ['pln'];
-								if( arg.optional ) className.push('optional');
-								var ident = arg.name;
-								switch(arg.name) {
-								case '...':
-									className.shift();
-									ident = '&hellip;';
-									break;
-								case 'true':
-								case 'false':
-								case 'undefined':
-								case 'null':
-								case 'Infinity':
-								case 'NaN':
-									className.shift();
-									className.unshift('kwd');
-									break;
+						for ( var z = 0; z < prop.calls.length; z++ ) {
+							var call = prop.calls[z];
+							var q = {};
+							var k, a = 'id,name,on,instanced,construct,namedProp,func,set'.split(',');
+							while( k = a.shift() ) q[k] = call[k];
+							q.callname = '';
+							if(q.construct) q.callname += 'new ';
+							if(q.on) q.callname += q.on + '.';
+							if(q.name) q.callname += q.name;
+							if(q.namedProp) q.callname += '[]';
+							if(q.func) q.callname += '()';
+							if(q.set) q.callname += '=';
+							q.callhtml = '';
+							if(q.construct) q.callhtml += '<span class="kwd new">new</span> ';
+							if(q.on) q.callhtml += '<span class="' + ( q.instanced ? 'pln' : 'typ' ) + '">' + q.on + '</span><span class="pun dot">.</span>';
+							if(q.name) q.callhtml += '<span class="pln">' + q.name + '</span>';
+							if(q.namedProp) q.callhtml += '<span class="pun bracket">[</span>';
+							if(q.func) q.callhtml += '<span class="pun paren">(</span>';
+							if(q.set) q.callhtml += ' <span class="pun eq">=</span> ';
+							//if(q.type !== 'get')
+								for ( var a = 0; a<call.arguments.length; a++ ) {
+									var arg = call.arguments[a];
+									if(a>0) q.callhtml += '<span class="pun comma">,</span> ';
+									if(arg.optionalBlock.open) q.callhtml += '<span class="pun optbracket">[</span>';
+									var className = ['pln'];
+									if( arg.optional ) className.push('optional');
+									var ident = arg.name;
+									switch(arg.name) {
+									case '...':
+										className.shift();
+										ident = '&hellip;';
+										break;
+									case 'true':
+									case 'false':
+									case 'undefined':
+									case 'null':
+									case 'Infinity':
+									case 'NaN':
+										className.shift();
+										className.unshift('kwd');
+										break;
+									}
+									q.callhtml += '<span class="' + className.join(' ') + '">' + ident + '</span>';
+									if(arg.defaultValue) q.callhtml += '<span class="pun eq">=</span>' + arg.defaultValue;
+									if(arg.optionalBlock.close) q.callhtml += '<span class="pun optbracket">]</span>';
 								}
-								q.callhtml += '<span class="' + className.join(' ') + '">' + ident + '</span>';
-								if(arg.defaultValue) q.callhtml += '<span class="pun eq">=</span>' + arg.defaultValue;
-								if(arg.optionalBlock.close) q.callhtml += '<span class="pun optbracket">]</span>';
-							}
-						if(q.func) q.callhtml += '<span class="pun paren">)</span>';
-						if(q.namedProp) q.callhtml += '<span class="pun bracket">]</span>';
-						q.callhtml += '<span class="pun semi">;</span>';
-						p.calls.push(q);
+							if(q.func) q.callhtml += '<span class="pun paren">)</span>';
+							if(q.namedProp) q.callhtml += '<span class="pun bracket">]</span>';
+							q.callhtml += '<span class="pun semi">;</span>';
+							p.calls.push(q);
+						}
+			
 					}
-			
-				}
 				
-				json.props.push(p);
+					json.props.push(p);
+				}
 			}
-			
+		} else {
+			json.example = json.name = this.name;
+			json.id = this.id;
+			json.body = this.getHTML();
 		}
 		
 		return json;
@@ -362,6 +368,10 @@ function toS(o, type, indent, depth) {
 	return s;
 }
 
+function filterExampleName(name) {
+	return name.replace(/\s+/g, '-').replace(/[^-_.\w]/g, '').toLowerCase();
+}
+
 function Doc() {
 	var t = new Node(null, TOK.DOC);
 	t.doc = t;
@@ -384,6 +394,7 @@ function Tokenizer(s, f, l) {
     this.allowDeindent = true;
     this.currentModule = undefined;
     this.currentClass = undefined;
+    this.currentExample = undefined;
 }
 
 Tokenizer.prototype = {
@@ -576,6 +587,7 @@ Tokenizer.prototype = {
 			} else if ((this.metaZone ||
 					this.top().type === TOK.DOC ||
 					this.top().type === TOK.MODULE ||
+					this.top().type === TOK.EXAMPLE ||
 					this.top().type === TOK.CLASS) && (match = /^@(\w[-_$\w\d]*)(?:\s+(.*))?$/(line))) {
 				var at = match[1];
 				var value = match[2] || true;
@@ -614,27 +626,31 @@ Tokenizer.prototype = {
 		case TOK.DOC:
 		case TOK.CLASS:
 		case TOK.MODULE:
+		case TOK.EXAMPLE:
 			switch(at) {
 			case 'module':
-				if( this.top().type === TOK.CLASS ) this.stack.pop();
+				if( this.top().type === TOK.CLASS || this.top().type === TOK.EXAMPLE ) this.stack.pop();
 				if( this.top().type === TOK.MODULE ) this.stack.pop();
 				var top = this.top();
 				if( top.type !== TOK.DOC ) break;
 				var mod = new Node(this.doc(), TOK.MODULE);
 				mod.name = value;
 				mod.classes = [];
+				mod.examples = [];
 				top.modules.push(mod);
 				this.enter(mod);
 				this.currentModule = mod;
+				this.currentExample = this.currentClass = undefined;
 				break;
 			case 'func':
 				value = '.func';
 			case 'class':
-				if( this.top().type === TOK.CLASS ) this.stack.pop();
+				if( this.top().type === TOK.CLASS || this.top().type === TOK.EXAMPLE ) this.stack.pop();
 				if( this.top().type === TOK.DOC ) {
 					var m = new Node(this.doc(), TOK.MODULE);
 					m.name = '_nil';
 					m.classes = [];
+					m.examples = [];
 					this.enter(m);
 					this.currentModule = m;
 				}
@@ -646,6 +662,28 @@ Tokenizer.prototype = {
 				top.classes.push(cls);
 				this.enter(cls);
 				this.currentClass = cls;
+				this.curremtExample = undefined;
+				break;
+			case 'example':
+				if( this.top().type === TOK.CLASS || this.top().type === TOK.EXAMPLE ) this.stack.pop();
+				if( this.top().type === TOK.DOC ) {
+					var m = new Node(this.doc(), TOK.MODULE);
+					m.name = '_nil';
+					m.classes = [];
+					m.examples = [];
+					this.enter(m);
+					this.currentModule = m;
+				}
+				var top = this.top();
+				if( top.type !== TOK.MODULE ) break;
+				var e = new Node(this.doc(), TOK.EXAMPLE);
+				e.module = this.currentModule;
+				e.name = value;
+				e.id = filterExampleName(e.name);
+				top.examples.push(e);
+				this.enter(e);
+				this.currentExample = e;
+				this.currentClass = undefined;
 				break;
 			}
 			break;
@@ -739,7 +777,7 @@ for ( var input = config.inputFiles.slice(), file; file = input.shift(); ) {
 }
 
 print('Rooting objects...');
-var root = { modules: {}, classes: [] };
+var root = { modules: {}, classes: [], examples: [] };
 root.classes.getByName = function(ident) {
 	for ( var i = 0; i < this.length; i++ )
 		if( this[i].name === ident )
@@ -760,6 +798,11 @@ for ( var d = docs.slice(), doc; doc = d.shift(); ) {
 			cls.root = root;
 			root.classes.push(cls);
 		}
+		for ( var e = mod.examples.slice(); ex = e.shift(); ) {
+			print(">> Doing example " + ex.name);
+			ex.root = root;
+			root.examples.push(ex);
+		}
 	}
 }
 print('');
@@ -768,15 +811,21 @@ print('Combining JSON...');
 var modules = {};
 var modulesList = [];
 var classesList = [];
+var examplesList = [];
 for ( var d = docs.slice(), doc; doc = d.shift(); ) {
 	for ( var m = doc.modules.slice(); mod = m.shift(); ) {
-		var mob = modules[mod.name] || { module: mod.name, classes: {} };
+		var mob = modules[mod.name] || { module: mod.name, classes: {}, examples: {} };
 		
 		print("Doing module " + mod.name);
 		for ( var c = mod.classes.slice(); cls = c.shift(); ) {
 			print("> Doing class " + cls.name);
 			mob.classes[cls.name] = cls.getJSON();
 			classesList.push(mob.classes[cls.name]);
+		}
+		for ( var e = mod.examples.slice(); ex = e.shift(); ) {
+			print("> Doing example " + ex.name);
+			mob.examples[ex.name] = ex.getJSON();
+			examplesList.push(mob.examples[ex.name]);
 		}
 		modules[mod.name] = mob;
 	}
@@ -805,6 +854,7 @@ try {
 	tpl.indexTemplate = new jtpl(new File('templates/index.html', 'r').read().toString());
 	tpl.moduleTemplate = new jtpl(new File('templates/module.html', 'r').read().toString());
 	tpl.classTemplate = new jtpl(new File('templates/class.html', 'r').read().toString());
+	tpl.exampleTemplate = new jtpl(new File('templates/example.html', 'r').read().toString());
 } catch ( e ) {
 	print( e.name + ': ' + e.message );
 	return;
@@ -828,6 +878,10 @@ for ( var module in modules ) {
 	for ( var c in mod.classes ) {
 		mob.classes.push( mod.classes[c] );
 	}
+	mob.examples = [];
+	for ( var e in mod.examples ) {
+		mob.examples.push( mod.examples[e] );
+	}
 	
 	tpl.moduleTemplate.writeTo(modulePath + 'index.html', mob);
 	
@@ -835,6 +889,12 @@ for ( var module in modules ) {
 		var	cls = mod.classes[className];
 		var classPath = modulePath + className + '.html';
 		tpl.classTemplate.writeTo(classPath, cls);
+	}
+	for ( var example in mod.examples ) {
+		var	ex = mod.examples[example];
+		if( !fs.isDirectory(modulePath + 'example/') ) fs.mkdirs(modulePath + 'example/');
+		var examplePath = modulePath + 'example/' + ex.id + '.html';
+		tpl.exampleTemplate.writeTo(examplePath, ex);
 	}
 	print('');
 }

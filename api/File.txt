@@ -237,3 +237,8 @@ file.copyFrom(path);
 	@param path The path to copy the file from, this may be a string path, a [[FilePath]], [[File]], or [[Directory]] instance.
 	See #copyTo. This does the same except copies from `path` into the current file instance.
 
+file.same(other);
+	@param other Another file object or path
+	Takes the current file and `other` file or path and stats the system to check
+	if they are the same file on the disk or not (following any links and so on).
+

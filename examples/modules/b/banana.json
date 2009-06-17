@@ -1,7 +1,0 @@
-{
-	"id": "b",
-	"name": "b",
-	"namespace": false,
-	"js": "b.js",
-	"requires": "a"
-}

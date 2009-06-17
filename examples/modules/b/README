@@ -1,4 +1,0 @@
-This example shows how modules can require other modules. This 
-module defines a single b.js which is run, and just like with a `banana('b');` 
-can be used to reference it. b depends on a but banana('a') is not used 
-inside of the code.

@@ -1,8 +1,0 @@
-@module io
-@class Directory
-
-dir.list();
-dir.toArray();
-	list returns a #FileArray while toArray returns an #Array.
-
-dir.glob(pattern);

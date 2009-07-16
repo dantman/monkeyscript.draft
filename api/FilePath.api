@@ -36,4 +36,8 @@ fp.file;
 fp.directory;
 	Returns a directory object for the absolute path on the filesystem.
 
+fp.glob(pattern);
+	@param pattern Glob matching pattern
+	
+
 

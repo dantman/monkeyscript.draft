@@ -1,0 +1,106 @@
+@module _std
+@class Buffer
+
+Description
+	The Buffer is a mutable representation of data in either text or binary format.
+	In binary mode indexes and lengths are numbers of 8-bit bytes, in text mode
+	indexes and lengths are numbers of UTF-16 characters.
+	For documentation purposes a "Sequence" refers to a String or a Blob.
+	
+	A empty Buffer starts of untyped. An untyped buffer can have a type explicitly
+	set on it by setting stream.text to a boolean. Or the first time it has data
+	inserted into it, it will inherit the data type of the data passed into it.
+	Once a Buffer has been typed it cannot be changed to another type as that
+	would require use of an unknown charset to convert the data.
+
+new Buffer();
+new Buffer(size);
+new Buffer(sequence);
+new Buffer(Class, [size]);
+	@param size     The size of the buffer to construct.
+	@param sequence A string or blob sequence to use 
+
+buf.length;
+	The current length (characters or bytes) of the buffer.
+	This may be set to cause the buffer to expand or contract in size.
+	If the buffer grows it will be padded with '\0' for strings and 0's for bytes.
+
+stream.text;
+	Boolean indicating if the stream is opened in text mode. If not the stream is binary.
+
+buf[index];
+	@param index The index of the byte or character to extract.
+	Returns either a string or a blob represending the byte or character at the
+	specified index.
+
+buf.append(data);
+	@param data The String or Blob of data
+	Append a chunk of data to the end of the buffer growing it by `data.length`.
+
+buf.insert(data, index);
+	@param data  The String or Blob of data
+	@param index The zero-indexed starting index to insert data at
+	Insert a chunk of data into a buffer growing it by `data.length` and shifting
+	the data to the right of the specified index to the right of the buffer.
+
+buf.clear(offset, length);
+	@param offset The zero-indexed starting index to clear from
+	@param length The length from the offset to clear
+	Zero out a section of the buffer. Binary buffers have bytes replaced
+	with 0's and text buffers have characters replaced with '\0's
+
+buf.remove(offset, length);
+	@param offset The zero-indexed starting index to start at
+	@param length The length from the offset to remove
+	Remove a section of the buffer starting at `offset` and continuing for `length` units.
+
+buf.splice(offset, length, data, ...);
+	@param offset The zero-indexed starting index to start at
+	@param length The length from the offset to remove
+	Remove a section of the buffer and insert chunks of data starting from the
+	place it was removed from.
+
+buf.valueOf();
+	Return the non-mutable sequence for the buffer.
+	In binary mode this returns a Blob which matches the contents of the buffer.
+	In text mode this returns a String which matches the contents of the buffer.
+
+buf.reverse();
+	Causes the sequence to be replaced by the reverse of the sequence.
+
+str.slice(start=0, end=Infinity);
+	@see String#
+	@param start The index to start slicing at
+	@param end   The index to end slicing at
+	Extract a subsection of the buffer and return it as a new sequence.
+	 * slice cares about the order of the index arguments. If your end is the same as or before your start slice will return an empty sequence.
+	 * If either start or end is negative it is considered relative to the end of the string.
+
+buf.indexOf(other, offset=0);
+	@see String#
+
+buf.lastIndexOf(other, offset=0);
+	@see String#
+
+buf.contains(other);
+	@see String#
+
+buf.startsWith(other);
+	@see String#
+
+buf.endsWith(other);
+	@see String#
+
+buf.numberOf(other, offset=0);
+	@see String#
+
+buf.split(separator, [limit]);
+	@see String#
+
+buf.explode(separator, [limit]);
+	@see String#
+
+buf.repeat(num);
+	@see String#
+
+

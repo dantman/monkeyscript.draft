@@ -18,7 +18,10 @@ new Buffer(size);
 new Buffer(sequence);
 new Buffer(Class, [size]);
 	@param size     The size of the buffer to construct.
-	@param sequence A string or blob sequence to use 
+	@param sequence A string or blob sequence to use as the initial type and data
+	@param Class    Either the String or Blob class to indicate what type to use
+	Create a new buffer.
+	
 
 buf.length;
 	The current length (characters or bytes) of the buffer.

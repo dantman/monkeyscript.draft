@@ -24,8 +24,7 @@ stream.isOpen;
 	A boolean indicating whether the stream is still open or not.
 
 stream.text;
-stream.binary;
-	Mutually exclusive booleans indicating if the stream is opened in text or binary mode.
+	Boolean indicating if the stream is opened in text mode. If not the stream is binary.
 
 stream.encoding;
 	The encoding used for the stream. If the stream is binary then 'binary' is

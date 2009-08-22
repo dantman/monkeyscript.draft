@@ -242,3 +242,50 @@ file.same(other);
 	Takes the current file and `other` file or path and stats the system to check
 	if they are the same file on the disk or not (following any links and so on).
 
+# w3c extensions
+
+file.mimeType;
+	Returns null for now (matching w3c's File API), in the future this may return
+	a file mimetype when an implementation for it is made.
+
+file.getAsDataURL([callback]);
+	Read the entire file into memory and create a data: url for it.
+	Return this data url if `callback` is not specified. On error a FileError with
+	the proper code should be thrown in non-async mode.
+	
+	If `callback` is specified defer reading and queue a task asyncronously to
+	read the file and call the callback function. The callback will be called
+	with two arguments, the data url that would be returned by this function,
+	and a FileError instance (normally this will be passed with a SUCCESS code).
+	If an error occurs in async mode the FileError is passed with the respective
+	FileError code set to it's .code parameter and the first argument is passed as null.
+
+file.getAsText([callback], [encoding=UTF-8]);
+	Read the entire file into memory and decode it into a string of text using
+	`encoding`. To be compatible with w3c's file api any character that cannot
+	be decoded must be replaced with the U+FFFD Replacement Character.
+	
+	See #getAsDataURL for async and non-async mode behavior.
+
+file.getAsBinaryString([callback]);
+	Read the entire file into memory as a binary [[String]] such that each
+	character is represented by a single byte which will return a number within
+	the range 0..255 when .charCodeAt is called at it's byte index.
+	
+	See #getAsDataURL for async and non-async mode behavior.
+
+file.getAsBlob([callback]);
+	Read the entire file into memory as a [[Blob]].
+	
+	See #getAsDataURL for async and non-async mode behavior.
+
+file.getAsBase64([callback]);
+	Read the entire file into memory, base64 encode it and put it into a new [[String]].
+
+file.cancelReads();
+	Cancel any async reading being done by a getAs* method which uses a callback
+	argument. Any callback that is pending will be called with null as the first
+	argument and the second will be called with a [[FileError]] instance with
+	a .code parameter of `FileError.CANCEL_ERR`.
+
+

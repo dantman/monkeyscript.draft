@@ -1,0 +1,44 @@
+@module io
+@class FileError
+@proto IOError
+
+Description
+	The FileError class is an [[Error]] class inheriting from the [[IOError]]
+	class used to represent errors incured by the [[File]] methods derived from
+	w3c's new File API.
+	
+	If any custom error codes are implemented they should use negative integers
+	to avoid incompatibility with future w3c additions.
+
+ferror.code;
+	A file code int from one of the FileError error code constants. This code
+	indicates what type of error (or non-error) caused the FileError to be thrown.
+
+FileError.SUCCESS;
+	@readonly
+	@value 0
+	Used by the async api when nothing went wrong with the request.
+
+FileError.NOT_FOUND_ERR;
+	@readonly
+	@value 8
+	Used by both the async and non-async modes of the api when the file was not found.
+
+FileError.NOT_READABLE_ERR;
+	@readonly
+	@value 24
+	Used by both the async and non-async modes of the api when the file was found but could not be read.
+
+FileError.SECURITY_ERR;
+	@readonly
+	@value 18
+	This error is reserved. w3c defines this for use when the implementation
+	has reason to block something for security reasons. This error code is
+	currently unused, but reserved for future use if security sand-boxing is implemented.
+
+FileError.CANCEL_ERR;
+	@readonly
+	@value 25
+	Used by the async-api when cancelReads() is called and causes a pending
+	callback to be called with a FileError.
+

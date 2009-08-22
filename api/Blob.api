@@ -15,9 +15,10 @@ blob.slice(offset, length);
 	@param length The number of bytes from the start off the offset to extract.
 	Extracts a section of the blob and returns a new blob containing it as the contents.
 
-blob.byteAt(index);
 blob[index];
-	@param index The index of the byte to extract.
+blob.byteAt(index)
+blob.valueAt(index);
+	@param index The index of the byte to extract
 	Extracts a single byte from the blob and returns a new blob object containing only it.
 
 blob.concat(otherBlob, ...);
@@ -45,7 +46,7 @@ blob.lastIndexOf(blob, offset=0);
 //	This function is merely provided for completeness with the string api,
 //	it's recommended to read multiple bytes at once using #stringAt.
 
-blob.integerAt(offset, size, signed=false, networkEndian=false);
+blob.integerAt(offset, size=1, signed=false, networkEndian=false);
 	@param offset        The number of bytes from the start of the blob to start at.
 	@param size          The byte size of the integer to extract.
 	@param signed        Is the integer to extract signed or not.
@@ -70,8 +71,5 @@ blob.stringAt(offset, size, encoding=UTF-16);
 	`encoding` defines the string encoding of the blob which will be used to
 	convert the blob into the native UTF-16 data.
 
-
-
-
-
+blob.split([separator, [limit=Infinity]])
 

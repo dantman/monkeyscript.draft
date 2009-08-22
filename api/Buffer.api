@@ -32,7 +32,7 @@ stream.text;
 	Boolean indicating if the stream is opened in text mode. If not the stream is binary.
 
 buf[index];
-	@param index The index of the byte or character to extract.
+	@param index The index of the byte or character to extract or set.
 	Returns either a string or a blob represending the byte or character at the
 	specified index.
 
@@ -55,7 +55,7 @@ buf.clear(offset, length);
 buf.remove(offset, length);
 	@param offset The zero-indexed starting index to start at
 	@param length The length from the offset to remove
-	Remove a section of the buffer starting at `offset` and continuing for `length` units.
+	Remove a section of the buffer starting at `offset` and continuing for `length` units, shrinking it by `length`.
 
 buf.splice(offset, length, data, ...);
 	@param offset The zero-indexed starting index to start at
@@ -63,21 +63,21 @@ buf.splice(offset, length, data, ...);
 	Remove a section of the buffer and insert chunks of data starting from the
 	place it was removed from.
 
-buf.valueOf();
-	Return the non-mutable sequence for the buffer.
-	In binary mode this returns a Blob which matches the contents of the buffer.
-	In text mode this returns a String which matches the contents of the buffer.
-
-buf.reverse();
-	Causes the sequence to be replaced by the reverse of the sequence.
-
-str.slice(start=0, end=Infinity);
+buf.slice(start=0, end=Infinity);
 	@see String#
 	@param start The index to start slicing at
 	@param end   The index to end slicing at
 	Extract a subsection of the buffer and return it as a new sequence.
 	 * slice cares about the order of the index arguments. If your end is the same as or before your start slice will return an empty sequence.
 	 * If either start or end is negative it is considered relative to the end of the string.
+
+buf.reverse();
+	Causes the sequence to be replaced by the reverse of the sequence.
+
+buf.valueOf();
+	Return the non-mutable sequence for the buffer.
+	In binary mode this returns a Blob which matches the contents of the buffer.
+	In text mode this returns a String which matches the contents of the buffer.
 
 buf.indexOf(other, offset=0);
 	@see String#

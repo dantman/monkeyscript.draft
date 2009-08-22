@@ -7,7 +7,13 @@ Description
 
 str.length;
 	@readonly
-	The number of UTF-16 charaters in the string.
+	The number of UTF-16 characters in the string.
+
+str[index];
+str.charAt(index)
+str.valueAt(index);
+	@param index The index of the character to extract
+	Extracts a single character from the string and returns a new string object containing only it.
 
 str.substr(start=0, length=Infinity);
 	@param start  The character index to start the substring extraction at

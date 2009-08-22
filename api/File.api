@@ -25,7 +25,7 @@ Description
 	a file inside the new current working directory.
 
 File.open(path, openFlags, [encoding=File.systemEncoding], [access], [block]);
-File.open(openFlags, options, [block]);
+File.open(path, options, [block]);
 file.open(openFlags, [encoding=File.systemEncoding], [access], [block]);
 file.open(options, [block]);
 	@param openFlags A string or bitfield indicating what mode to open the file in 

@@ -1,10 +1,12 @@
+DEAD PROJECT
+============
 MonkeyScript Drafting
-=====================
+---------------------
 
 This is the draft for the MonkeyScript API.
 
-Repo is hosted at [http://github.com/dantman/monkeyscript.draft](http://github.com/dantman/monkeyscript.draft).
+Repo was hosted at [http://github.com/dantman/monkeyscript.draft](http://github.com/dantman/monkeyscript.draft).
 
-Site is hosted at [http://draft.monkeyscript.org/api](http://draft.monkeyscript.org/api).
+Site was hosted at hxxp://draft.monkeyscript.org/api.
 
-Also see the wiki hosted at [http://draft.monkeyscript.org/wiki](http://draft.monkeyscript.org/wiki).
+Wiki was hosted at hxxp://draft.monkeyscript.org/wiki.
